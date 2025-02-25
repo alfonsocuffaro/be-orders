@@ -13,7 +13,7 @@ It will be capable of allowing a front-end application to:
 
 In addition to all of the above it should be possible:
 
-1. to track and manage product stock levels
+4. to track and manage product stock levels
 
 
 ## Rationale
@@ -40,22 +40,27 @@ The rationale of the project is to showcase development skills in a small but no
 
 ### Products management
 
-- [ ] PRODUCTS: create (?)
-- [ ] PRODUCTS: read/search (?)
-- [ ] PRODUCTS: edit/update (?)
-- [ ] PRODUCTS: delete (?)
+- [ ] PRODUCTS: create (optional?)
+- [ ] PRODUCTS: read/search (optional?)
+- [ ] PRODUCTS: edit/update (optional?)
+- [ ] PRODUCTS: delete (optional?)
 
 
 ### Stock levels management
 
-- [ ] STOCK levels: search (?)
-- [ ] STOCK levels: increase (?)
+- [ ] STOCK levels: search (optional?)
+- [ ] STOCK levels: increase (optional?)
 
 
 ### Users management
 
-- [ ] USERS: create (?)
-- [ ] USERS: read/search (?)
-- [ ] USERS: edit/update (?)
-- [ ] USERS: delete (?)
+- [ ] USERS: create (optional?)
+- [ ] USERS: read/search (optional?)
+- [ ] USERS: edit/update (optional?)
+- [ ] USERS: delete (optional?)
 
+
+### Others
+
+- [ ] dockerize ?
+- [ ] integrate tools like Elasticsearch/Meilisearch for enahanced search capabilities
