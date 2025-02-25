@@ -44,5 +44,11 @@ public class OrderController {
 				.toUri();
 		return ResponseEntity.created(locationOfSavedOrder).build();
 	}
+	
+	
+	@GetMapping
+	private ResponseEntity<Iterable<BEOrder>> findAll() {
+		return ResponseEntity.ok(orderRepository.findAll());
+	}
 
 }

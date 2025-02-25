@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
+import org.assertj.core.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -12,12 +14,30 @@ import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 import com.example.beorders.orders.BEOrder;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
 public class OrderJsonTest {
 	@Autowired
 	private JacksonTester<BEOrder> json;
 	
+	@Autowired
+	private JacksonTester<BEOrder[]> jsonList;
+	
+	private BEOrder[] beOrders;
+	
+	
+	@BeforeEach
+	void setUp() {
+		beOrders = Arrays.array(
+				new BEOrder( 99L,  123.99),
+				new BEOrder(100L, 1100.99),
+				new BEOrder(200L, 1200.99),
+				new BEOrder(300L, 1300.99),
+				new BEOrder(400L, 1400.99)
+		);
+	}
+
 	
 	@Test
 	void OrderSerializationTest() throws IOException {
@@ -25,7 +45,7 @@ public class OrderJsonTest {
 		JsonContent<BEOrder> jsonOrder = json.write(anOrder);
 		
 		// test write is correct
-		assertThat(jsonOrder).isStrictlyEqualToJson("orders/order_expected.json");
+		assertThat(jsonOrder).isStrictlyEqualToJson("orders/order_expected_single.json");
 		
 		// test id is 100
 		assertThat(jsonOrder).hasJsonPathNumberValue("@.id");
@@ -35,6 +55,7 @@ public class OrderJsonTest {
 		assertThat(jsonOrder).hasJsonPathNumberValue("@.amount");
 		assertThat(jsonOrder).extractingJsonPathNumberValue("@.amount").isEqualTo(123.0);
 	}
+
 	
 	@Test
 	void OrderDeserializationTest() throws IOException {
@@ -53,4 +74,24 @@ public class OrderJsonTest {
 		assertThat(json.parseObject(expected).amount()).isEqualTo(123.0);
 	}
 	
+
+	@Test
+	void cashCardListSerializationTest() throws IOException {
+		assertThat(jsonList.write(beOrders)).isStrictlyEqualToJson("orders/order_expected_list.json");
+	}
+	
+	
+	@Test
+	void cashCardListDeserializationTest() throws IOException {
+		String expected="""
+				[
+					{"id":  99, "amount":  123.99},
+					{"id": 100, "amount": 1100.99},
+					{"id": 200, "amount": 1200.99},
+					{"id": 300, "amount": 1300.99},
+					{"id": 400, "amount": 1400.99}
+				]
+				""";
+		assertThat(jsonList.parse(expected)).isEqualTo(beOrders);
+	}
 }
