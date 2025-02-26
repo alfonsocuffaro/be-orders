@@ -18,12 +18,16 @@ repositories {
 }
 
 dependencies {
+	// dependencies for the app
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.data:spring-data-jdbc'
+	
+	// an in memory data base
+	implementation 'com.h2database:h2'
+	
+	// dependencies for testing purposes
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	
-	implementation 'org.springframework.data:spring-data-jdbc'
-	implementation 'com.h2database:h2'
 }
 
 tasks.named('test') {
@@ -31,7 +35,7 @@ tasks.named('test') {
 }
 
 
-// This section causes useful test output to go to the terminal.
+// This section causes useful test output to go to the terminal
 test {
     testLogging {
         events "passed", "skipped", "failed" //, "standardOut", "standardError"
@@ -44,4 +48,14 @@ test {
         // Change to `true` for more verbose test output
         showStandardStreams = true
     }
+}
+
+
+// when producing the jar, please add the manifest file that specifies the main class
+jar {
+	manifest {
+		attributes(
+			'Main-Class': 'com.example.beorders.BeordersApplication'
+		)
+	}
 }
