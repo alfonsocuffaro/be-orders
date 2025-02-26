@@ -70,7 +70,7 @@ class BeordersApplicationTests {
 
 	
 	@Test
-	void shouldReturnAllCashCardsWhenListIsRequested() {
+	void shouldReturnAllOrdersWhenListIsRequested() {
 		ResponseEntity<String> response = restTemplate.getForEntity("/orders", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		

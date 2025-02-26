@@ -76,13 +76,13 @@ public class OrderJsonTest {
 	
 
 	@Test
-	void cashCardListSerializationTest() throws IOException {
+	void ordersListSerializationTest() throws IOException {
 		assertThat(jsonList.write(beOrders)).isStrictlyEqualToJson("orders/order_expected_list.json");
 	}
 	
 	
 	@Test
-	void cashCardListDeserializationTest() throws IOException {
+	void ordersListDeserializationTest() throws IOException {
 		String expected="""
 				[
 					{"id":  99, "amount":  123.99},
