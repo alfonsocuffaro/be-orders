@@ -12,7 +12,8 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 
 import com.example.beorders.orders.BEOrder;
 import com.jayway.jsonpath.DocumentContext;
@@ -83,5 +84,26 @@ class BeordersApplicationTests {
 		
 		JSONArray amounts = documentContext.read("$..amount");
 		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99);
+	}
+	
+	
+	@Test
+	@DirtiesContext
+	void shouldUpdateAnExistingOrder() {
+		BEOrder orderUpdate = new BEOrder(null, 200.00);
+		HttpEntity<BEOrder> request = new HttpEntity<>(orderUpdate);
+		ResponseEntity<Void> response = restTemplate
+				.exchange("/orders/99", HttpMethod.PUT, request, Void.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+		
+		// check that update has really changed the data store
+		ResponseEntity<String> responseToGet = restTemplate
+				.getForEntity("/orders/99", String.class);
+		assertThat(responseToGet.getStatusCode()).isEqualTo(HttpStatus.OK);
+		DocumentContext documentContext = JsonPath.parse(responseToGet.getBody());
+		Number id = documentContext.read("$.id");
+		Double amount = documentContext.read("$.amount");
+		assertThat(id).isEqualTo(99);
+		assertThat(amount).isEqualTo(200.00);
 	}
 }
