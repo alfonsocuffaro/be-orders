@@ -32,8 +32,8 @@ public class OrderController {
 
 
 	@GetMapping
-	private ResponseEntity<List<BEOrder>> findAll(Pageable pageable, Principal principal) {
-		Page<BEOrder> page = orderRepository.findByOwner(
+	private ResponseEntity<List<Order>> findAll(Pageable pageable, Principal principal) {
+		Page<Order> page = orderRepository.findByOwner(
 			principal.getName(),
 			PageRequest.of(
 				pageable.getPageNumber(),
@@ -44,9 +44,9 @@ public class OrderController {
 	}
 	
 	@GetMapping("/{requestedId}")
-	private ResponseEntity<BEOrder> findById(@PathVariable Long requestedId, Principal principal) {
+	private ResponseEntity<Order> findById(@PathVariable Long requestedId, Principal principal) {
 		
-		BEOrder order = findOrder(requestedId, principal);
+		Order order = findOrder(requestedId, principal);
 		
 		return order == null ?
 				ResponseEntity.notFound().build()
@@ -55,10 +55,10 @@ public class OrderController {
 	
 	
 	@PostMapping
-	private ResponseEntity<Void> createOrder(@RequestBody BEOrder newOrder, UriComponentsBuilder ucb, Principal principal) {
+	private ResponseEntity<Void> createOrder(@RequestBody Order newOrder, UriComponentsBuilder ucb, Principal principal) {
 
-		BEOrder savedOrderWithOwner = new BEOrder(null,newOrder.amount(), principal.getName());
-		BEOrder savedOrder = orderRepository.save(savedOrderWithOwner);
+		Order savedOrderWithOwner = new Order(null,newOrder.amount(), principal.getName());
+		Order savedOrder = orderRepository.save(savedOrderWithOwner);
 		URI locationOfSavedOrder = ucb
 				.path("/orders/{newOrderId}")
 				.buildAndExpand(savedOrder.id())
@@ -68,15 +68,15 @@ public class OrderController {
 	
 	
 	@PutMapping("/{requestedId}")
-	private ResponseEntity<Void> putOrder(@PathVariable Long requestedId, @RequestBody BEOrder update, Principal principal) {
+	private ResponseEntity<Void> putOrder(@PathVariable Long requestedId, @RequestBody Order update, Principal principal) {
 
-		BEOrder order = findOrder(requestedId, principal);
+		Order order = findOrder(requestedId, principal);
 		
 		if (order == null) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		BEOrder updatedOrder = new BEOrder(order.id(), update.amount(), principal.getName());
+		Order updatedOrder = new Order(order.id(), update.amount(), principal.getName());
 		orderRepository.save(updatedOrder);
 		
 		return ResponseEntity.noContent().build();
@@ -93,7 +93,7 @@ public class OrderController {
 		return ResponseEntity.noContent().build();
 	}
 	
-	private BEOrder findOrder(Long requestedId, Principal principal) {
+	private Order findOrder(Long requestedId, Principal principal) {
 		return orderRepository.findByIdAndOwner(requestedId, principal.getName());
 	}
 		

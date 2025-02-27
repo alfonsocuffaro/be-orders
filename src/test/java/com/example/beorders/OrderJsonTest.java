@@ -12,37 +12,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
-import com.example.beorders.orders.BEOrder;
+import com.example.beorders.orders.Order;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
 public class OrderJsonTest {
 	@Autowired
-	private JacksonTester<BEOrder> json;
+	private JacksonTester<Order> json;
 	
 	@Autowired
-	private JacksonTester<BEOrder[]> jsonList;
+	private JacksonTester<Order[]> jsonList;
 	
-	private BEOrder[] beOrders;
+	private Order[] beOrders;
 	
 	
 	@BeforeEach
 	void setUp() {
 		beOrders = Arrays.array(
-				new BEOrder( 99L,  123.99, "Alice"),
-				new BEOrder(100L, 1100.99, "Alice"),
-				new BEOrder(200L, 1200.99, "Alice"),
-				new BEOrder(300L, 1300.99, "Alice"),
-				new BEOrder(400L, 1400.99, "Alice")
+				new Order( 99L,  123.99, "Alice"),
+				new Order(100L, 1100.99, "Alice"),
+				new Order(200L, 1200.99, "Alice"),
+				new Order(300L, 1300.99, "Alice"),
+				new Order(400L, 1400.99, "Alice")
 		);
 	}
 
 	
 	@Test
 	void OrderSerializationTest() throws IOException {
-		BEOrder anOrder = new BEOrder(100L, 123.00, "Alice");
-		JsonContent<BEOrder> jsonOrder = json.write(anOrder);
+		Order anOrder = new Order(100L, 123.00, "Alice");
+		JsonContent<Order> jsonOrder = json.write(anOrder);
 		
 		// test write is correct
 		assertThat(jsonOrder).isStrictlyEqualToJson("orders/order_expected_single.json");
@@ -70,7 +70,7 @@ public class OrderJsonTest {
 		""";
 		
 		// test that parsing is correct
-		assertThat(json.parse(expected)).isEqualTo(new BEOrder(100L, 123.00, "Alice"));
+		assertThat(json.parse(expected)).isEqualTo(new Order(100L, 123.00, "Alice"));
 
 		// test that 'Order' attributes are read correctly
 		assertThat(json.parseObject(expected).id()).isEqualTo(100);

@@ -5,9 +5,9 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-interface OrderRepository extends CrudRepository<BEOrder, Long>, PagingAndSortingRepository<BEOrder, Long> {
+interface OrderRepository extends CrudRepository<Order, Long>, PagingAndSortingRepository<Order, Long> {
 	
-	BEOrder       findByIdAndOwner(Long id, String owner);
-	Page<BEOrder> findByOwner(String owner, PageRequest pageRequest);
+	Order       findByIdAndOwner(Long id, String owner);
+	Page<Order> findByOwner(String owner, PageRequest pageRequest);
 	boolean       existsByIdAndOwner(Long id, String owner);
 }

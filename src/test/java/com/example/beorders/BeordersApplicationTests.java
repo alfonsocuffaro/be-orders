@@ -15,7 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 
-import com.example.beorders.orders.BEOrder;
+import com.example.beorders.orders.Order;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 
@@ -63,7 +63,7 @@ class BeordersApplicationTests {
 	@Test
 	@DirtiesContext
 	void shouldCreateANewOrder() {
-		BEOrder newOrd = new BEOrder(null, 250.00, null);
+		Order newOrd = new Order(null, 250.00, null);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Alice", "alice")
 				.postForEntity("/orders", newOrd, Void.class);
@@ -110,8 +110,8 @@ class BeordersApplicationTests {
 	@Test
 	@DirtiesContext
 	void shouldUpdateAnExistingOrder() {
-		BEOrder orderUpdate = new BEOrder(null, 200.00, "Alice");
-		HttpEntity<BEOrder> request = new HttpEntity<>(orderUpdate);
+		Order orderUpdate = new Order(null, 200.00, "Alice");
+		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Alice", "alice")
 				.exchange("/orders/99", HttpMethod.PUT, request, Void.class);
@@ -228,8 +228,8 @@ class BeordersApplicationTests {
 	
 	@Test
 	void shouldNotUpdateAnOrderThatDoesNotExist() {
-		BEOrder unknownOrder = new BEOrder(null, 19.99, null);
-		HttpEntity<BEOrder> request = new HttpEntity<>(unknownOrder);
+		Order unknownOrder = new Order(null, 19.99, null);
+		HttpEntity<Order> request = new HttpEntity<>(unknownOrder);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Alice", "alice")
 				.exchange("/orders/99999", HttpMethod.PUT, request, Void.class);
@@ -240,8 +240,8 @@ class BeordersApplicationTests {
 	
 	@Test
 	void shouldNotUpdateAnOrderThatIsOwnedBySomeoneElse() {
-		BEOrder cathysOrder = new BEOrder(null, 333.33, null);
-		HttpEntity<BEOrder> request = new HttpEntity<>(cathysOrder);
+		Order cathysOrder = new Order(null, 333.33, null);
+		HttpEntity<Order> request = new HttpEntity<>(cathysOrder);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Alice", "alice")
 		.exchange("/orders/600", HttpMethod.PUT, request, Void.class);
