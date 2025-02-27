@@ -20,6 +20,7 @@ repositories {
 dependencies {
 	// dependencies for the app
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.data:spring-data-jdbc'
 	
 	// an in memory data base
@@ -46,7 +47,7 @@ test {
         showStackTraces = true
 
         // Change to `true` for more verbose test output
-        showStandardStreams = true
+        showStandardStreams = false
     }
 }
 

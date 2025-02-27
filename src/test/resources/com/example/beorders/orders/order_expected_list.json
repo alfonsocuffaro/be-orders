@@ -1,7 +1,7 @@
 [
-	{"id":  99, "amount":  123.99},
-	{"id": 100, "amount": 1100.99},
-	{"id": 200, "amount": 1200.99},
-	{"id": 300, "amount": 1300.99},
-	{"id": 400, "amount": 1400.99}
+	{"id":  99, "amount":  123.99, "owner": "Alice"},
+	{"id": 100, "amount": 1100.99, "owner": "Alice"},
+	{"id": 200, "amount": 1200.99, "owner": "Alice"},
+	{"id": 300, "amount": 1300.99, "owner": "Alice"},
+	{"id": 400, "amount": 1400.99, "owner": "Alice"}
 ]

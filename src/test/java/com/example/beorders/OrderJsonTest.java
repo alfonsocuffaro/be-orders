@@ -30,18 +30,18 @@ public class OrderJsonTest {
 	@BeforeEach
 	void setUp() {
 		beOrders = Arrays.array(
-				new BEOrder( 99L,  123.99),
-				new BEOrder(100L, 1100.99),
-				new BEOrder(200L, 1200.99),
-				new BEOrder(300L, 1300.99),
-				new BEOrder(400L, 1400.99)
+				new BEOrder( 99L,  123.99, "Alice"),
+				new BEOrder(100L, 1100.99, "Alice"),
+				new BEOrder(200L, 1200.99, "Alice"),
+				new BEOrder(300L, 1300.99, "Alice"),
+				new BEOrder(400L, 1400.99, "Alice")
 		);
 	}
 
 	
 	@Test
 	void OrderSerializationTest() throws IOException {
-		BEOrder anOrder = new BEOrder(100L, 123.00);
+		BEOrder anOrder = new BEOrder(100L, 123.00, "Alice");
 		JsonContent<BEOrder> jsonOrder = json.write(anOrder);
 		
 		// test write is correct
@@ -62,12 +62,13 @@ public class OrderJsonTest {
 		String expected = """
 			{
 				"id": 100,
-				"amount": 123.00
+				"amount": 123.00,
+				"owner": "Alice"
 			}
 		""";
 		
 		// test that parsing is correct
-		assertThat(json.parse(expected)).isEqualTo(new BEOrder(100L, 123.00));
+		assertThat(json.parse(expected)).isEqualTo(new BEOrder(100L, 123.00, "Alice"));
 
 		// test that 'Order' attributes are read correctly
 		assertThat(json.parseObject(expected).id()).isEqualTo(100);
@@ -85,11 +86,11 @@ public class OrderJsonTest {
 	void ordersListDeserializationTest() throws IOException {
 		String expected="""
 				[
-					{"id":  99, "amount":  123.99},
-					{"id": 100, "amount": 1100.99},
-					{"id": 200, "amount": 1200.99},
-					{"id": 300, "amount": 1300.99},
-					{"id": 400, "amount": 1400.99}
+					{"id":  99, "amount":  123.99, "owner": "Alice"},
+					{"id": 100, "amount": 1100.99, "owner": "Alice"},
+					{"id": 200, "amount": 1200.99, "owner": "Alice"},
+					{"id": 300, "amount": 1300.99, "owner": "Alice"},
+					{"id": 400, "amount": 1400.99, "owner": "Alice"}
 				]
 				""";
 		assertThat(jsonList.parse(expected)).isEqualTo(beOrders);
