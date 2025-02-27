@@ -44,6 +44,8 @@ class BeordersApplicationTests {
 		assertThat(id).isEqualTo(99);
 		Double amount = documentContext.read("$.amount");
 		assertThat(amount).isEqualTo(123.99);
+
+		// TODO testare anche lo username ????
 	}
 	
 	
@@ -61,7 +63,7 @@ class BeordersApplicationTests {
 	@Test
 	@DirtiesContext
 	void shouldCreateANewOrder() {
-		BEOrder newOrd = new BEOrder(null, 250.00,"Alice");
+		BEOrder newOrd = new BEOrder(null, 250.00, null);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Alice", "alice")
 				.postForEntity("/orders", newOrd, Void.class);
@@ -79,6 +81,8 @@ class BeordersApplicationTests {
 
 		assertThat(id).isNotNull();
 		assertThat(amount).isEqualTo(250.00);
+
+		// TODO testare anche lo username ????
 	}
 
 	
@@ -98,6 +102,8 @@ class BeordersApplicationTests {
 		
 		JSONArray amounts = documentContext.read("$..amount");
 		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99);
+
+		// TODO testare anche lo username ????
 	}
 	
 	
@@ -121,6 +127,8 @@ class BeordersApplicationTests {
 		Double amount = documentContext.read("$.amount");
 		assertThat(id).isEqualTo(99);
 		assertThat(amount).isEqualTo(200.00);
+
+		// TODO testare anche lo username ????
 	}
 	
 	
@@ -150,6 +158,8 @@ class BeordersApplicationTests {
 
 		double amount = documentContext.read("$[0].amount");
 		assertThat(amount).isEqualTo(1400.99);
+
+		// TODO testare anche lo username ????
 	}
 	
 	
@@ -166,11 +176,13 @@ class BeordersApplicationTests {
 
 		JSONArray amounts = documentContext.read("$..amount");
 		assertThat(amounts).containsExactly(123.99, 1100.99, 1200.99, 1300.99, 1400.99);
+
+		// TODO testare anche lo username ????
 	}
 	
 	
 	@Test
-	void shouldNotReturnAnOrderWhenUsingBadUsrname() {
+	void shouldNotReturnAnOrderWhenUsingBadUsername() {
 	    ResponseEntity<String> response = restTemplate
 	      .withBasicAuth("BAD_USERNAME", "alice")
 	      .getForEntity("/cashcards/99", String.class);
@@ -194,5 +206,47 @@ class BeordersApplicationTests {
 	      .getForEntity("/cashcards/99", String.class);
 	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
+	
+	
+	@Test
+	void shouldRejectUsersWhoAreNotOrderOwners() {
+		ResponseEntity<String> response = restTemplate
+			.withBasicAuth("Boris", "boris")
+			.getForEntity("/orders/99", String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+	}
+	
+	
+	@Test
+	void shouldNotAllowAccessToOrdersTheyDoNotOwn() {
+		ResponseEntity<String> response = restTemplate
+		.withBasicAuth("Alice", "alice")
+		.getForEntity("/orders/600", String.class); // Cathy's data
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+	
+	
+	@Test
+	void shouldNotUpdateAnOrderThatDoesNotExist() {
+		BEOrder unknownOrder = new BEOrder(null, 19.99, null);
+		HttpEntity<BEOrder> request = new HttpEntity<>(unknownOrder);
+		ResponseEntity<Void> response = restTemplate
+				.withBasicAuth("Alice", "alice")
+				.exchange("/orders/99999", HttpMethod.PUT, request, Void.class);
+	
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+	
+	
+	@Test
+	void shouldNotUpdateAnOrderThatIsOwnedBySomeoneElse() {
+		BEOrder cathysOrder = new BEOrder(null, 333.33, null);
+		HttpEntity<BEOrder> request = new HttpEntity<>(cathysOrder);
+		ResponseEntity<Void> response = restTemplate
+				.withBasicAuth("Alice", "alice")
+		.exchange("/orders/600", HttpMethod.PUT, request, Void.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+	
 	
 }

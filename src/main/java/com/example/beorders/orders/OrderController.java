@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+import java.security.Principal;
 
 
 @RestController
@@ -30,8 +31,9 @@ public class OrderController {
 
 
 	@GetMapping
-	private ResponseEntity<List<BEOrder>> findAll(Pageable pageable) {
-		Page<BEOrder> page = orderRepository.findAll(
+	private ResponseEntity<List<BEOrder>> findAll(Pageable pageable, Principal principal) {
+		Page<BEOrder> page = orderRepository.findByOwner(
+			principal.getName(),
 			PageRequest.of(
 				pageable.getPageNumber(),
 				pageable.getPageSize(),
@@ -41,22 +43,21 @@ public class OrderController {
 	}
 	
 	@GetMapping("/{requestedId}")
-	private ResponseEntity<BEOrder> findById(@PathVariable Long requestedId) {
+	private ResponseEntity<BEOrder> findById(@PathVariable Long requestedId, Principal principal) {
 		
-		Optional<BEOrder> optionalOrder = orderRepository.findById(requestedId);
+		BEOrder order = findOrder(requestedId, principal);
 		
-		if(optionalOrder.isPresent()) {
-			return ResponseEntity.ok(optionalOrder.get());
-		}
-		
-		return ResponseEntity.notFound().build();
+		return order == null ?
+				ResponseEntity.notFound().build()
+				: ResponseEntity.ok(order);		
 	}
 	
 	
 	@PostMapping
-	private ResponseEntity<Void> createOrder(@RequestBody BEOrder newOrder, UriComponentsBuilder ucb) {
-		
-		BEOrder savedOrder = orderRepository.save(newOrder);
+	private ResponseEntity<Void> createOrder(@RequestBody BEOrder newOrder, UriComponentsBuilder ucb, Principal principal) {
+
+		BEOrder savedOrderWithOwner = new BEOrder(null,newOrder.amount(), principal.getName());
+		BEOrder savedOrder = orderRepository.save(savedOrderWithOwner);
 		URI locationOfSavedOrder = ucb
 				.path("/orders/{newOrderId}")
 				.buildAndExpand(savedOrder.id())
@@ -66,13 +67,23 @@ public class OrderController {
 	
 	
 	@PutMapping("/{requestedId}")
-	private ResponseEntity<Void> putOrder(@PathVariable Long requestedId, @RequestBody BEOrder update) {
+	private ResponseEntity<Void> putOrder(@PathVariable Long requestedId, @RequestBody BEOrder update, Principal principal) {
 
-		Optional<BEOrder> order = orderRepository.findById(requestedId);
-		BEOrder updatedOrder = new BEOrder(order.get().id(), update.amount(), "UNO_USER_FITTIZIO");
+		BEOrder order = findOrder(requestedId, principal);
+		
+		if (order == null) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		BEOrder updatedOrder = new BEOrder(order.id(), update.amount(), principal.getName());
 		orderRepository.save(updatedOrder);
 		
 		return ResponseEntity.noContent().build();
+	}
+	
+	
+	private BEOrder findOrder(Long requestedId, Principal principal) {
+		return orderRepository.findByIdAndOwner(requestedId, principal.getName());
 	}
 		
 }

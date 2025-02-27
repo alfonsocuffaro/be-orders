@@ -54,6 +54,8 @@ public class OrderJsonTest {
 		// test amount is also 100
 		assertThat(jsonOrder).hasJsonPathNumberValue("@.amount");
 		assertThat(jsonOrder).extractingJsonPathNumberValue("@.amount").isEqualTo(123.0);
+		
+		// TODO testare anche lo username
 	}
 
 	
@@ -73,6 +75,7 @@ public class OrderJsonTest {
 		// test that 'Order' attributes are read correctly
 		assertThat(json.parseObject(expected).id()).isEqualTo(100);
 		assertThat(json.parseObject(expected).amount()).isEqualTo(123.0);
+		// TODO testare anche lo username
 	}
 	
 

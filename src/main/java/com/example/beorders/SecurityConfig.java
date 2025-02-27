@@ -20,7 +20,7 @@ class SecurityConfig {
 		http
 		.authorizeHttpRequests(request -> request
 			.requestMatchers("/orders/**")
-			.authenticated())
+			.hasRole("ORDER_OWNER"))
 			.httpBasic(Customizer.withDefaults())
 		.csrf(csrf -> csrf.disable());
 
@@ -31,18 +31,26 @@ class SecurityConfig {
 	@Bean
 	UserDetailsService testOnlyUsers(PasswordEncoder passwordEncoder) {
 		User.UserBuilder users = User.builder();
-		UserDetails userAlice = users
-			.username("Alice")
-			.password(passwordEncoder.encode("alice"))
-			.roles() // No roles for now
-			.build();
 
-		return new InMemoryUserDetailsManager(userAlice);
+		UserDetails userAlice = createUser("Alice", "alice", "ORDER_OWNER", passwordEncoder);
+		UserDetails userBoris = createUser("Boris", "boris", "NON_ORDER_OWNER", passwordEncoder);
+
+		return new InMemoryUserDetailsManager(userAlice, userBoris);
 	}
 	
 	
 	@Bean
 	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+	
+	
+	private UserDetails createUser(String username, String password, String role, PasswordEncoder passwordEncoder) {
+		return User
+			.builder()
+			.username(username)
+			.password(passwordEncoder.encode(password))
+			.roles(role)
+			.build();
 	}
 }
