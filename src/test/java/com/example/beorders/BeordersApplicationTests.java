@@ -249,4 +249,51 @@ class BeordersApplicationTests {
 	}
 	
 	
+	@Test
+	@DirtiesContext
+	void shouldDeleteAnExistingOrder() {
+		ResponseEntity<Void> response = restTemplate
+		.withBasicAuth("Alice", "alice")
+		.exchange("/orders/99", HttpMethod.DELETE, null, Void.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+		
+		
+		// now test that the order is actually deleted
+		ResponseEntity<String> getResponse = restTemplate
+				.withBasicAuth("Alice", "alice")
+				.getForEntity("/orders/99", String.class);
+			assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+		
+	}
+	
+	
+	@Test
+	void shouldNotDeleteAnOrderThatDoesNotExist() {
+		ResponseEntity<Void> deleteResponse = restTemplate
+			.withBasicAuth("Alice", "alice")
+			.exchange("/orders/99999", HttpMethod.DELETE, null, Void.class);
+
+		assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+	
+	
+	@Test
+	void shouldNotAllowDeletionOfOrdersTheyDoNotOwn() {
+		ResponseEntity<Void> deleteResponse = restTemplate
+			.withBasicAuth("Alice", "alice")
+			.exchange("/orders/600", HttpMethod.DELETE, null, Void.class);
+		
+		assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+		
+		// verify that the record we tried unsuccessfully to delete is still there
+		// order with id 600 is owned by Cathy
+		// so Cathy is the user that can access it
+		ResponseEntity<String> getResponse = restTemplate
+				.withBasicAuth("Cathy", "cathy")
+				.getForEntity("/orders/600", String.class);
+		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+		
+	}
+	
 }

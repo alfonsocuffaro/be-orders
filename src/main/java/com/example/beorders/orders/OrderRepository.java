@@ -9,4 +9,5 @@ interface OrderRepository extends CrudRepository<BEOrder, Long>, PagingAndSortin
 	
 	BEOrder       findByIdAndOwner(Long id, String owner);
 	Page<BEOrder> findByOwner(String owner, PageRequest pageRequest);
+	boolean       existsByIdAndOwner(Long id, String owner);
 }

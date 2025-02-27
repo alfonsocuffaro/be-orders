@@ -34,8 +34,9 @@ class SecurityConfig {
 
 		UserDetails userAlice = createUser("Alice", "alice", "ORDER_OWNER", passwordEncoder);
 		UserDetails userBoris = createUser("Boris", "boris", "NON_ORDER_OWNER", passwordEncoder);
+		UserDetails userCathy = createUser("Cathy", "cathy", "ORDER_OWNER", passwordEncoder);
 
-		return new InMemoryUserDetailsManager(userAlice, userBoris);
+		return new InMemoryUserDetailsManager(userAlice, userBoris, userCathy);
 	}
 	
 	

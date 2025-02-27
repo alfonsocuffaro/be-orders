@@ -46,7 +46,9 @@ test {
         showCauses = true
         showStackTraces = true
 
-        // Change to `true` for more verbose test output
+        // Set `showStandardStreams` to
+        // - `true` for more verbose test output
+        // - `false` for less verbose test output
         showStandardStreams = false
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,6 +82,16 @@ public class OrderController {
 		return ResponseEntity.noContent().build();
 	}
 	
+	
+	@DeleteMapping("/{id}")
+	private ResponseEntity<Void> deleteCashCard(@PathVariable Long id, Principal principal) {
+		// check if the order exists in the database AND the principal own the record
+		if (!orderRepository.existsByIdAndOwner(id, principal.getName())) {
+			return ResponseEntity.notFound().build();
+		}
+		orderRepository.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
 	
 	private BEOrder findOrder(Long requestedId, Principal principal) {
 		return orderRepository.findByIdAndOwner(requestedId, principal.getName());
