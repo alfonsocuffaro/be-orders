@@ -16,7 +16,8 @@ In addition to all of the above it should be possible:
 4. to track and manage product stock levels
 
 
-## Rationale
+<br/><br/>
+# Rationale
 
 The rationale of the project is to showcase development skills in a easy but not too easy java project.
 
@@ -92,11 +93,12 @@ In a terminal emulator run one of the commands
 reaching it at any of its URI at **`http://localhost:8000`**
 
 
-##  Todo list
+<br/><br/>
+#  Todo list
 
-- [x] think on how to store data (db, db schema, initial data, ...)
-- [x] think about users
-- [ ] **WIP** list the URI of the endpoints
+- [x] ~~think on how to store data (db, db schema, initial data, ...)~~
+- [x] ~~think about users~~
+- [ ] **WIP** list the URsI of the endpoints
 
 
 ### Orders management
