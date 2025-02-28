@@ -19,9 +19,13 @@ class SecurityConfig {
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 		.authorizeHttpRequests(request -> request
-			.requestMatchers("/orders/**")
-			.hasRole("ORDER_OWNER"))
-			.httpBasic(Customizer.withDefaults())
+				.requestMatchers("/admin/orders/**")
+				.hasAnyRole("ADMIN"))
+				.httpBasic(Customizer.withDefaults())
+		.authorizeHttpRequests(request -> request
+				.requestMatchers("/orders/**")
+				.hasAnyRole("ADMIN", "ORDER_OWNER"))
+				.httpBasic(Customizer.withDefaults())
 		.csrf(csrf -> csrf.disable());
 
 		return http.build();
@@ -32,11 +36,12 @@ class SecurityConfig {
 	UserDetailsService testOnlyUsers(PasswordEncoder passwordEncoder) {
 		User.UserBuilder users = User.builder();
 
+		UserDetails userAdmin = createUser("Admin", "admin", "ADMIN", passwordEncoder);
 		UserDetails userAlice = createUser("Alice", "alice", "ORDER_OWNER", passwordEncoder);
 		UserDetails userBoris = createUser("Boris", "boris", "NON_ORDER_OWNER", passwordEncoder);
 		UserDetails userCathy = createUser("Cathy", "cathy", "ORDER_OWNER", passwordEncoder);
 
-		return new InMemoryUserDetailsManager(userAlice, userBoris, userCathy);
+		return new InMemoryUserDetailsManager(userAdmin, userAlice, userBoris, userCathy);
 	}
 	
 	

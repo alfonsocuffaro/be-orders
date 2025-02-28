@@ -23,11 +23,11 @@ import java.security.Principal;
 
 
 @RestController
-@RequestMapping("/orders")
-public class OrderController {
+@RequestMapping("/admin/orders")
+public class AdminOrderController {
 	private final OrderRepository orderRepository;
 	
-	private OrderController(OrderRepository anOrderRepository) {
+	private AdminOrderController(OrderRepository anOrderRepository) {
 		this.orderRepository = anOrderRepository;
 	}
 
@@ -61,12 +61,11 @@ public class OrderController {
 	@GetMapping("/{requestedId}")
 	private ResponseEntity<Order> findById(@PathVariable Long requestedId, Principal principal) {
 		
-		// TODO implement a better solution instead of such a naive one
-		Order order = findOrder(requestedId, principal);
+		Optional<Order> order = findOrder(requestedId, principal);
 		
-		return order == null ?
+		return order.isEmpty() ?
 				ResponseEntity.notFound().build()
-				: ResponseEntity.ok(order);		
+				: ResponseEntity.ok(order.get());		
 	}
 	
 	
@@ -77,7 +76,7 @@ public class OrderController {
 		Order savedOrderWithOwner = new Order(null, newOrder.amount(), newOwner);
 		Order savedOrder = orderRepository.save(savedOrderWithOwner);
 		URI locationOfSavedOrder = ucb
-				.path("/orders/{newOrderId}")
+				.path("/admin/orders/{newOrderId}")
 				.buildAndExpand(savedOrder.id())
 				.toUri();
 		return ResponseEntity.created(locationOfSavedOrder).build();
@@ -87,13 +86,15 @@ public class OrderController {
 	@PutMapping("/{requestedId}")
 	private ResponseEntity<Void> putOrder(@PathVariable Long requestedId, @RequestBody Order update, Principal principal) {
 
-		Order order = findOrder(requestedId, principal);
+		Optional<Order> optionalOrder = findOrder(requestedId, principal);
 		
-		if (order == null) {
+		if (optionalOrder.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		String newOwner = Strings.isEmpty(update.owner()) ? principal.getName() : update.owner();
+		Order order = optionalOrder.get();
+		String newOwner = Strings.isEmpty(order.owner()) ? principal.getName() : order.owner();
+		
 		Order updatedOrder = new Order(order.id(), update.amount(), newOwner);
 		orderRepository.save(updatedOrder);
 		
@@ -101,45 +102,22 @@ public class OrderController {
 	}
 	
 	
-//	@DeleteMapping("/{id}")
-//	private ResponseEntity<Void> deleteCashCard(@PathVariable Long id, Principal principal) {
-//		// check if the order exists in the database AND the principal own the record
-//		if (!orderRepository.existsByIdAndOwner(id, principal.getName())) {
-//			return ResponseEntity.notFound().build();
-//		}
-//		orderRepository.deleteById(id);
-//		return ResponseEntity.noContent().build();
-//	}	
 	@DeleteMapping("/{id}")
 	private ResponseEntity<Void> deleteOrder(@PathVariable Long id, Principal principal) {
-		
-		// TODO implement a better solution instead of such a naive one
-		if (principal.getName().equals("Admin")) {
-			// check if the order exists in the database
-			if (!orderRepository.existsById(id)) {
-				return ResponseEntity.notFound().build();
-			}
-			orderRepository.deleteById(id);
-			return ResponseEntity.noContent().build();
-		}
-		
 		// check if the order exists in the database AND the principal own the record
-		if (!orderRepository.existsByIdAndOwner(id, principal.getName())) {
+		if (!orderRepository.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
 		orderRepository.deleteById(id);
 		return ResponseEntity.noContent().build();
 	}
 	
-//	private Order findOrder(Long requestedId) {
-//		return orderRepository.findById(requestedId);
-//	}
-	
-	private Order findOrder(Long requestedId, Principal principal) {
-		if (principal.getName().equals("Admin")) {
-			return orderRepository.findById(requestedId).orElse(null);
-		}
-		return orderRepository.findByIdAndOwner(requestedId, principal.getName());
+	private Optional<Order> findOrder(Long requestedId, Principal principal) {
+		return orderRepository.findById(requestedId);
 	}
+	
+//	private Order findOrder2(Long requestedId, Principal principal) {
+//		return orderRepository.findByIdAndOwner(requestedId, principal.getName());
+//	}
 		
 }

@@ -40,12 +40,15 @@ class BeordersApplicationTests {
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		
 		Number id = documentContext.read("$.id");
 		assertThat(id).isEqualTo(99);
+		
 		Double amount = documentContext.read("$.amount");
 		assertThat(amount).isEqualTo(123.99);
 
-		// TODO testare anche lo username ????
+		String username = documentContext.read("$.owner");
+		assertThat(username).isEqualTo("Alice");
 	}
 	
 	
@@ -53,7 +56,7 @@ class BeordersApplicationTests {
 	void shouldNotReturnAnOrderWithAnUnknownId() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders/1000", String.class);
+				.getForEntity("/orders/9999", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		assertThat(response.getBody()).isBlank();
@@ -63,6 +66,7 @@ class BeordersApplicationTests {
 	@Test
 	@DirtiesContext
 	void shouldCreateANewOrder() {
+		// owner parameter is null because the owner is taken from the principal 
 		Order newOrd = new Order(null, 250.00, null);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Alice", "alice")
@@ -78,11 +82,11 @@ class BeordersApplicationTests {
 		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
+		String owner = documentContext.read("$.owner");
 
 		assertThat(id).isNotNull();
 		assertThat(amount).isEqualTo(250.00);
-
-		// TODO testare anche lo username ????
+		assertThat(owner).isEqualTo("Alice");
 	}
 
 	
@@ -98,9 +102,9 @@ class BeordersApplicationTests {
 		assertThat(ordersCount).isEqualTo(5);
 		
 		JSONArray ids = documentContext.read("$..id");
-		assertThat(ids).containsExactlyInAnyOrder(99, 100, 200, 300, 400);
-		
 		JSONArray amounts = documentContext.read("$..amount");
+		
+		assertThat(ids).containsExactlyInAnyOrder(99, 100, 200, 300, 400);
 		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99);
 
 		// TODO testare anche lo username ????
@@ -154,12 +158,12 @@ class BeordersApplicationTests {
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
 		JSONArray read = documentContext.read("$[*]");
-		assertThat(read.size()).isEqualTo(1);
-
 		double amount = documentContext.read("$[0].amount");
+		String owner = documentContext.read("$[0].owner");
+		
+		assertThat(read.size()).isEqualTo(1);
 		assertThat(amount).isEqualTo(1400.99);
-
-		// TODO testare anche lo username ????
+		assertThat(owner).isEqualTo("Alice");
 	}
 	
 	
@@ -171,13 +175,14 @@ class BeordersApplicationTests {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		
 		JSONArray page = documentContext.read("$[*]");
-		assertThat(page.size()).isEqualTo(5);
-
 		JSONArray amounts = documentContext.read("$..amount");
+		JSONArray owners = documentContext.read("$..owner");
+		
+		assertThat(page.size()).isEqualTo(5);
 		assertThat(amounts).containsExactly(123.99, 1100.99, 1200.99, 1300.99, 1400.99);
-
-		// TODO testare anche lo username ????
+		assertThat(owners).containsExactly("Alice", "Alice", "Alice", "Alice", "Alice");
 	}
 	
 	
@@ -185,7 +190,7 @@ class BeordersApplicationTests {
 	void shouldNotReturnAnOrderWhenUsingBadUsername() {
 	    ResponseEntity<String> response = restTemplate
 	      .withBasicAuth("BAD_USERNAME", "alice")
-	      .getForEntity("/cashcards/99", String.class);
+	      .getForEntity("/orders/99", String.class);
 	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 	
@@ -194,7 +199,7 @@ class BeordersApplicationTests {
 	void shouldNotReturnAnOrderWhenUsingBadPassword() {
 	    ResponseEntity<String> response = restTemplate
 	      .withBasicAuth("Alice", "BAD_PASSWORD")
-	      .getForEntity("/cashcards/99", String.class);
+	      .getForEntity("/orders/99", String.class);
 	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 	
@@ -203,7 +208,7 @@ class BeordersApplicationTests {
 	void shouldNotReturnAnOrderWhenUsingBadCredentials() {
 	    ResponseEntity<String> response = restTemplate
 	      .withBasicAuth("BAD_USER", "BAD_PASSWORD")
-	      .getForEntity("/cashcards/99", String.class);
+	      .getForEntity("/orders/99", String.class);
 	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 	
@@ -287,13 +292,31 @@ class BeordersApplicationTests {
 		assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		
 		// verify that the record we tried unsuccessfully to delete is still there
-		// order with id 600 is owned by Cathy
-		// so Cathy is the user that can access it
+		// order with id 600 is owned by Cathy, so we must use Cathy to try access it
 		ResponseEntity<String> getResponse = restTemplate
 				.withBasicAuth("Cathy", "cathy")
 				.getForEntity("/orders/600", String.class);
 		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 	}
+	
+//	
+//	@Test
+//	void shouldReturnToAdminAllOrdersWhenListIsRequested() {
+//		ResponseEntity<String> response = restTemplate
+//				.withBasicAuth("Admin", "admin")
+//				.getForEntity("/orders", String.class);
+//		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+//		
+//		DocumentContext documentContext = JsonPath.parse(response.getBody());
+//		int ordersCount = documentContext.read("$.length()");
+//		assertThat(ordersCount).isEqualTo(6);
+//		
+//		JSONArray ids = documentContext.read("$..id");
+//		assertThat(ids).containsExactlyInAnyOrder(99, 100, 200, 300, 400, 600);
+//		
+//		JSONArray amounts = documentContext.read("$..amount");
+//		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99, 1600.99);
+//	}
 	
 }
