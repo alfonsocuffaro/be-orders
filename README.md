@@ -23,30 +23,30 @@ The rationale of the project is to showcase development skills in a easy but not
 
 
 
-## How to build the docker image of the project
+<br/><br/>
+# How to build the docker image of the project
+
 **Prerequisites**:
 
 - Java, with the JAVA_HOME environment variable set
 - Docker or Podman
-- Gradle is not a requirement (it will be automatically installed by a script already present in the project's repository)
+- Gradle is not a requirement (it will be automatically installed by a script already present in the project’s repository; don't worry the script comes from the project https://start.spring.io used to initialize the spring boot application)
 
-<br/>
+  
 <br/>
 
 **Steps to build**:
 
-- Run **`cd <PROJECT_FOLDER>`** (**`<PROJECT_FOLDER>`** is the folder where the project has been cloned/downloaded into; if **`<PROJECT_FOLDER>`** is the correct one, you should be seeing the following files **`build.gradle`**, **`dockerfile`**, etc.)
+- Run **`cd <PROJECT_FOLDER>`** (**`<PROJECT_FOLDER>`** is the folder where the project has been cloned/downloaded into; if **`<PROJECT_FOLDER>`** is the correct one, you should seeing the following files **`build.gradle`**, **`dockerfile`**, etc.)
 - build the project: **`./gradlew build`**
-- run the tests: **`./gradlew test`**
-- if everything goes smoothly then you can build the image for running the container
-- **`docker build -t beorders .`**
+- run the tests: **`./gradlew test`** (in windows **`./gradlew.bat test`**)
+- if everything is ok you can build the image for running the container with **`docker build -t beorders .`**
+
 
 <br/>
 
-**Build the image for the container.**
-
 To build the image for the container the following **`dockerfile`** will be used:
- 
+
 ```dockerfile
 # Use an official java runtime as a parent image
 FROM openjdk:23-rc
@@ -64,29 +64,32 @@ EXPOSE 8080
 CMD ["java", "-jar", "beorders.jar"]
 ```
 
+  
 <br/>
 
 **Run the container.**
 
 In a terminal emulator run one of the commands
 
-1. **`docker run -p 8000:8080 beorders`**
-2. **`docker run -d -p 8000:8080 beorders`**
+1.  **`docker run -p 8000:8080 beorders`**
+2.  **`docker run -d -p 8000:8080 beorders`**
 
-**Command 1**
-runs the container, mapping its port **`8080`** (defined with the **EXPOSE** command in the dockerfile) to the host's port **`8000`**.
+**Command 1** runs the container, mapping its port **`8080`** (defined with the **EXPOSE** command in the dockerfile) to the host’s port **`8000`**.
 
-**Command 2**
-in addition to **Command 1**, here the container runs in the background (the so called **detached mode**) meaning that:
-- you can start a container and continue working on your terminal without being blocked by the container's output
+**Command 2** similar to **Command 1**, in addition here the container runs in the background (the so called **detached mode**) meaning that:
+
+- you can start a container and continue working on your terminal without being blocked by the container’s output
 - the container will continue to run even if you close the terminal where you started it (in this case you can still manage the container using the usual docker commands)
 
+  
 <br/>
 
-**Working with the container.**
-You can work with the container using tools like:
-- **curl**, **wget**, **httpie**, ...
+**Working with the container.** You can work with the container using tools like:
+
+- **curl**, **wget**, **httpie**, …
 - **Postman**, **echoapi**, **Swagger UI**
+
+reaching it at any of its URI at **`http://localhost:8000`**
 
 
 ##  Todo list
