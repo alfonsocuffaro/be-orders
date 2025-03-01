@@ -4,6 +4,5 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table(name = "BE_ORDER")
-public record Order(@Id Long id, Double amount, String owner) {
-
+public record Order(@Id Long id, Double amount, String owner, String product, Integer quantity) {
 }

@@ -1,5 +1,7 @@
 {
 	"id": 100,
 	"amount": 123.00,
-	"owner": "Alice"
+	"owner": "Alice",
+	"product": "Food",
+	"quantity": 1
 }

@@ -73,7 +73,7 @@ public class AdminOrderController {
 	private ResponseEntity<Void> createOrder(@RequestBody Order newOrder, UriComponentsBuilder ucb, Principal principal) {
 
 		String newOwner = Strings.isEmpty(newOrder.owner()) ? principal.getName() : newOrder.owner();
-		Order savedOrderWithOwner = new Order(null, newOrder.amount(), newOwner);
+		Order savedOrderWithOwner = new Order(null, newOrder.amount(), newOwner, newOrder.product(), newOrder.quantity());
 		Order savedOrder = orderRepository.save(savedOrderWithOwner);
 		URI locationOfSavedOrder = ucb
 				.path("/admin/orders/{newOrderId}")
@@ -95,7 +95,7 @@ public class AdminOrderController {
 		Order order = optionalOrder.get();
 		String newOwner = Strings.isEmpty(order.owner()) ? principal.getName() : order.owner();
 		
-		Order updatedOrder = new Order(order.id(), update.amount(), newOwner);
+		Order updatedOrder = new Order(order.id(), update.amount(), newOwner, update.product(), update.quantity());
 		orderRepository.save(updatedOrder);
 		
 		return ResponseEntity.noContent().build();

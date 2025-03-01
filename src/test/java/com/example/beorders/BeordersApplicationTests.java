@@ -35,20 +35,23 @@ class BeordersApplicationTests {
 	@Test
 	void shouldReturnAnOrderWhenDataIsSaved() {
 		ResponseEntity<String> response = restTemplate
-				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders/99", String.class);
+				.withBasicAuth("Cathy", "cathy")
+				.getForEntity("/orders/600", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
 		
 		Number id = documentContext.read("$.id");
-		assertThat(id).isEqualTo(99);
-		
 		Double amount = documentContext.read("$.amount");
-		assertThat(amount).isEqualTo(123.99);
-
 		String username = documentContext.read("$.owner");
-		assertThat(username).isEqualTo("Alice");
+		String product = documentContext.read("$.product");
+		Number quantity = documentContext.read("$.quantity");
+		
+		assertThat(id).isEqualTo(600);
+		assertThat(amount).isEqualTo(1600.99);
+		assertThat(username).isEqualTo("Cathy");
+		assertThat(product).isEqualTo("Dogfood");
+		assertThat(quantity).isEqualTo(1);
 	}
 	
 	
@@ -67,7 +70,7 @@ class BeordersApplicationTests {
 	@DirtiesContext
 	void shouldCreateANewOrder() {
 		// owner parameter is null because the owner is taken from the principal 
-		Order newOrd = new Order(null, 250.00, null);
+		Order newOrd = new Order(null, 250.00, null, "Computer quantistico", 5);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Alice", "alice")
 				.postForEntity("/orders", newOrd, Void.class);
@@ -83,10 +86,14 @@ class BeordersApplicationTests {
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
 		String owner = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Integer quantity = documentContext.read("$.quantity");
 
 		assertThat(id).isNotNull();
 		assertThat(amount).isEqualTo(250.00);
 		assertThat(owner).isEqualTo("Alice");
+		assertThat(product).isEqualTo("Computer quantistico");
+		assertThat(quantity).isEqualTo(5);
 	}
 
 	
@@ -99,40 +106,50 @@ class BeordersApplicationTests {
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
 		int ordersCount = documentContext.read("$.length()");
-		assertThat(ordersCount).isEqualTo(5);
 		
 		JSONArray ids = documentContext.read("$..id");
 		JSONArray amounts = documentContext.read("$..amount");
-		
-		assertThat(ids).containsExactlyInAnyOrder(99, 100, 200, 300, 400);
-		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99);
+		JSONArray owners = documentContext.read("$..owner");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
 
-		// TODO testare anche lo username ????
+		assertThat(ordersCount).isEqualTo(7);
+		assertThat(ids).containsExactlyInAnyOrder(50, 100, 105, 110, 200, 300, 400);
+		assertThat(amounts).containsExactlyInAnyOrder(1100.99, 450.00, 500.50, 250.00, 1200.99, 1300.99, 1400.99);
+		assertThat(owners).containsExactlyInAnyOrder("Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Alice");
+		assertThat(products).containsExactlyInAnyOrder("Food", "Golden Ring", "Ring with diamonds",
+				"Ring", "Motorbike", "Dogfood", "Fork");
+		assertThat(quantities).containsExactlyInAnyOrder(10, 10, 5, 1, 1, 1, 1);
 	}
 	
 	
 	@Test
 	@DirtiesContext
 	void shouldUpdateAnExistingOrder() {
-		Order orderUpdate = new Order(null, 200.00, "Alice");
+		Order orderUpdate = new Order(null, 200.00, "Alice", "Computer quantistico", 5);
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.exchange("/orders/99", HttpMethod.PUT, request, Void.class);
+				.exchange("/orders/200", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
 		// check that update has really changed the data store
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders/99", String.class);
+				.getForEntity("/orders/200", String.class);
 		assertThat(responseToGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(responseToGet.getBody());
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
-		assertThat(id).isEqualTo(99);
+		String owner = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Integer quantity = documentContext.read("$.quantity");
+		
+		assertThat(id).isEqualTo(200);
 		assertThat(amount).isEqualTo(200.00);
-
-		// TODO testare anche lo username ????
+		assertThat(owner).isEqualTo("Alice");
+		assertThat(product).isEqualTo("Computer quantistico");
+		assertThat(quantity).isEqualTo(5);
 	}
 	
 	
@@ -177,12 +194,20 @@ class BeordersApplicationTests {
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
 		
 		JSONArray page = documentContext.read("$[*]");
+		
+		JSONArray ids = documentContext.read("$..id");
 		JSONArray amounts = documentContext.read("$..amount");
 		JSONArray owners = documentContext.read("$..owner");
-		
-		assertThat(page.size()).isEqualTo(5);
-		assertThat(amounts).containsExactly(123.99, 1100.99, 1200.99, 1300.99, 1400.99);
-		assertThat(owners).containsExactly("Alice", "Alice", "Alice", "Alice", "Alice");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
+
+		assertThat(page).hasSize(7);
+		assertThat(ids).containsExactlyInAnyOrder(50, 100, 105, 110, 200, 300, 400);
+		assertThat(amounts).containsExactlyInAnyOrder(1100.99, 450.00, 500.50, 250.00, 1200.99, 1300.99, 1400.99);
+		assertThat(owners).containsExactlyInAnyOrder("Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Alice");
+		assertThat(products).containsExactlyInAnyOrder("Food", "Golden Ring", "Ring with diamonds",
+				"Ring", "Motorbike", "Dogfood", "Fork");
+		assertThat(quantities).containsExactlyInAnyOrder(10, 10, 5, 1, 1, 1, 1);
 	}
 	
 	
@@ -233,7 +258,7 @@ class BeordersApplicationTests {
 	
 	@Test
 	void shouldNotUpdateAnOrderThatDoesNotExist() {
-		Order unknownOrder = new Order(null, 19.99, null);
+		Order unknownOrder = new Order(null, 19.99, null, null, null);
 		HttpEntity<Order> request = new HttpEntity<>(unknownOrder);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Alice", "alice")
@@ -245,7 +270,7 @@ class BeordersApplicationTests {
 	
 	@Test
 	void shouldNotUpdateAnOrderThatIsOwnedBySomeoneElse() {
-		Order cathysOrder = new Order(null, 333.33, null);
+		Order cathysOrder = new Order(null, 333.33, null, null, null);
 		HttpEntity<Order> request = new HttpEntity<>(cathysOrder);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Alice", "alice")
@@ -259,7 +284,7 @@ class BeordersApplicationTests {
 	void shouldDeleteAnExistingOrder() {
 		ResponseEntity<Void> response = restTemplate
 		.withBasicAuth("Alice", "alice")
-		.exchange("/orders/99", HttpMethod.DELETE, null, Void.class);
+		.exchange("/orders/200", HttpMethod.DELETE, null, Void.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
@@ -267,7 +292,7 @@ class BeordersApplicationTests {
 		// now test that the order is actually deleted
 		ResponseEntity<String> getResponse = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders/99", String.class);
+				.getForEntity("/orders/200", String.class);
 			assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		
 	}

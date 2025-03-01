@@ -36,7 +36,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnAnOrderWhenDataIsSavedUsingReservedUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders/99", String.class);
+				.getForEntity("/admin/orders/100", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -44,10 +44,14 @@ class BeordersApplicationAdminTests {
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
 		String username = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Number quantity = documentContext.read("$.quantity");
 		
-		assertThat(id).isEqualTo(99);
-		assertThat(amount).isEqualTo(123.99);
+		assertThat(id).isEqualTo(100);
+		assertThat(amount).isEqualTo(450.00);
 		assertThat(username).isEqualTo("Alice");
+		assertThat(product).isEqualTo("Golden Ring");
+		assertThat(quantity).isEqualTo(10);
 	}
 	
 	
@@ -55,7 +59,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnAnOrderWhenDataIsSavedUsingPublicUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders/99", String.class);
+				.getForEntity("/orders/100", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -63,10 +67,14 @@ class BeordersApplicationAdminTests {
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
 		String username = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Number quantity = documentContext.read("$.quantity");
 		
-		assertThat(id).isEqualTo(99);
-		assertThat(amount).isEqualTo(123.99);
+		assertThat(id).isEqualTo(100);
+		assertThat(amount).isEqualTo(450.00);
 		assertThat(username).isEqualTo("Alice");
+		assertThat(product).isEqualTo("Golden Ring");
+		assertThat(quantity).isEqualTo(10);
 	}
 	
 	
@@ -85,7 +93,7 @@ class BeordersApplicationAdminTests {
 	@DirtiesContext
 	void shouldCreateANewOrderForAdminHimself() {
 		// owner parameter is null because the owner is taken from the principal
-		Order newOrd = new Order(null, 250.00, null);
+		Order newOrd = new Order(null, 250.00, null, "Computer laptop", 2);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.postForEntity("/admin/orders", newOrd, Void.class);
@@ -102,10 +110,14 @@ class BeordersApplicationAdminTests {
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
 		String username = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Integer quantity = documentContext.read("$.quantity");
 
 		assertThat(id).isNotNull();
 		assertThat(amount).isEqualTo(250.00);
 		assertThat(username).isEqualTo("Admin");
+		assertThat(product).isEqualTo("Computer laptop");
+		assertThat(quantity).isEqualTo(2);
 	}
 	
 	
@@ -113,7 +125,7 @@ class BeordersApplicationAdminTests {
 	@DirtiesContext
 	void shouldCreateANewOrderOnBehalfOthersUsingReservedUri() {
 		// admin creates an order on behalf of Alice
-		Order newOrd = new Order(null, 250.00, "Alice");
+		Order newOrd = new Order(null, 250.00, "Alice", "Bicicletta", 10);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.postForEntity("/admin/orders", newOrd, Void.class);
@@ -131,10 +143,14 @@ class BeordersApplicationAdminTests {
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
 		String owner = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Integer quantity = documentContext.read("$.quantity");
 
 		assertThat(id).isNotNull();
 		assertThat(amount).isEqualTo(250.00);
 		assertThat(owner).isEqualTo("Alice");
+		assertThat(product).isEqualTo("Bicicletta");
+		assertThat(quantity).isEqualTo(10);
 		
 		// verification 2: but also Alice (the owner) should see it under the URI "/orders/{id}"
 		// example:
@@ -152,10 +168,14 @@ class BeordersApplicationAdminTests {
 		Number idFromOwnerResponse = documentContextFromOwnerResponse.read("$.id");
 		Double amountFromOwnerResponse = documentContextFromOwnerResponse.read("$.amount");
 		String ownerFromOwnerResponse = documentContextFromOwnerResponse.read("$.owner");
+		String productFromOwnerResponse = documentContext.read("$.product");
+		Integer quantityFromOwnerResponse = documentContext.read("$.quantity");
 
 		assertThat(idFromOwnerResponse).isNotNull();
 		assertThat(amountFromOwnerResponse).isEqualTo(250.00);
 		assertThat(ownerFromOwnerResponse).isEqualTo("Alice");
+		assertThat(productFromOwnerResponse).isEqualTo("Bicicletta");
+		assertThat(quantityFromOwnerResponse).isEqualTo(10);
 	}
 	
 	
@@ -163,7 +183,7 @@ class BeordersApplicationAdminTests {
 	@DirtiesContext
 	void shouldCreateANewOrderOnBehalfOthersUsingPublicUri() {
 		// admin creates an order on behalf of Alice
-		Order newOrd = new Order(null, 250.00, "Alice");
+		Order newOrd = new Order(null, 250.00, "Alice", "Bicicletta", 10);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.postForEntity("/orders", newOrd, Void.class);
@@ -181,10 +201,14 @@ class BeordersApplicationAdminTests {
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
 		String owner = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Integer quantity = documentContext.read("$.quantity");
 
 		assertThat(id).isNotNull();
 		assertThat(amount).isEqualTo(250.00);
 		assertThat(owner).isEqualTo("Alice");
+		assertThat(product).isEqualTo("Bicicletta");
+		assertThat(quantity).isEqualTo(10);
 		
 		// verification 2: but also Alice (the owner) should see it under the URI "/orders/{id}"
 		// example:
@@ -202,10 +226,14 @@ class BeordersApplicationAdminTests {
 		Number idFromOwnerResponse = documentContextFromOwnerResponse.read("$.id");
 		Double amountFromOwnerResponse = documentContextFromOwnerResponse.read("$.amount");
 		String ownerFromOwnerResponse = documentContextFromOwnerResponse.read("$.owner");
+		String productFromOwnerResponse = documentContext.read("$.product");
+		Integer quantityFromOwnerResponse = documentContext.read("$.quantity");
 
 		assertThat(idFromOwnerResponse).isNotNull();
 		assertThat(amountFromOwnerResponse).isEqualTo(250.00);
 		assertThat(ownerFromOwnerResponse).isEqualTo("Alice");
+		assertThat(productFromOwnerResponse).isEqualTo("Bicicletta");
+		assertThat(quantityFromOwnerResponse).isEqualTo(10);
 	}
 
 	
@@ -218,16 +246,19 @@ class BeordersApplicationAdminTests {
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
 		int ordersCount = documentContext.read("$.length()");
-		assertThat(ordersCount).isEqualTo(7);
-		
 		JSONArray ids = documentContext.read("$..id");
-		assertThat(ids).containsExactlyInAnyOrder(99, 100, 200, 300, 400, 600, 1000);
-		
 		JSONArray amounts = documentContext.read("$..amount");
-		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99, 1600.99, 1968.05);
-		
 		JSONArray owners = documentContext.read("$..owner");
-		assertThat(owners).containsExactlyInAnyOrder("Alice", "Alice", "Alice", "Alice", "Alice", "Cathy", "Admin");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
+		
+		assertThat(ordersCount).isEqualTo(9);
+		assertThat(ids).containsExactlyInAnyOrder(50, 100, 105, 110, 200, 300, 400, 600, 1000);
+		assertThat(amounts).containsExactlyInAnyOrder(1100.99, 450.00, 500.50, 250.00, 1200.99, 1300.99, 1400.99, 1600.99, 1968.05);
+		assertThat(owners).containsExactlyInAnyOrder("Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Cathy", "Admin");
+		assertThat(products).containsExactlyInAnyOrder("Food", "Golden Ring", "Ring with diamonds",
+				"Ring", "Motorbike", "Dogfood", "Fork", "Dogfood", "Computer");
+		assertThat(quantities).containsExactlyInAnyOrder(10, 10, 5, 1, 1, 1, 1, 1, 1);
 	}
 
 	
@@ -240,23 +271,26 @@ class BeordersApplicationAdminTests {
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
 		int ordersCount = documentContext.read("$.length()");
-		assertThat(ordersCount).isEqualTo(7);
-		
 		JSONArray ids = documentContext.read("$..id");
-		assertThat(ids).containsExactlyInAnyOrder(99, 100, 200, 300, 400, 600, 1000);
-		
 		JSONArray amounts = documentContext.read("$..amount");
-		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99, 1600.99, 1968.05);
-		
 		JSONArray owners = documentContext.read("$..owner");
-		assertThat(owners).containsExactlyInAnyOrder("Alice", "Alice", "Alice", "Alice", "Alice", "Cathy", "Admin");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
+		
+		assertThat(ordersCount).isEqualTo(9);
+		assertThat(ids).containsExactlyInAnyOrder(50, 100, 105, 110, 200, 300, 400, 600, 1000);
+		assertThat(amounts).containsExactlyInAnyOrder(1100.99, 450.00, 500.50, 250.00, 1200.99, 1300.99, 1400.99, 1600.99, 1968.05);
+		assertThat(owners).containsExactlyInAnyOrder("Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Cathy", "Admin");
+		assertThat(products).containsExactlyInAnyOrder("Food", "Golden Ring", "Ring with diamonds",
+				"Ring", "Motorbike", "Dogfood", "Fork", "Dogfood", "Computer");
+		assertThat(quantities).containsExactlyInAnyOrder(10, 10, 5, 1, 1, 1, 1, 1, 1);
 	}
 	
 	
 	@Test
 	@DirtiesContext
 	void shouldUpdateAnExistingOrderOfAdminUsingReservedUri() {
-		Order orderUpdate = new Order(null, 200.00, "Admin");
+		Order orderUpdate = new Order(null, 200.00, "Admin", "Computer quantistico", 5);
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
@@ -272,17 +306,21 @@ class BeordersApplicationAdminTests {
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
 		String owner = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Integer quantity = documentContext.read("$.quantity");
 		
 		assertThat(id).isEqualTo(1000);
 		assertThat(amount).isEqualTo(200.00);
 		assertThat(owner).isEqualTo("Admin");
+		assertThat(product).isEqualTo("Computer quantistico");
+		assertThat(quantity).isEqualTo(5);
 	}
 	
 	
 	@Test
 	@DirtiesContext
 	void shouldUpdateAnExistingOrderOfAdminUsingPublicUri() {
-		Order orderUpdate = new Order(null, 200.00, "Admin");
+		Order orderUpdate = new Order(null, 200.00, "Admin", "Computer quantistico", 5);
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
@@ -298,66 +336,78 @@ class BeordersApplicationAdminTests {
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
 		String owner = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Integer quantity = documentContext.read("$.quantity");
 		
 		assertThat(id).isEqualTo(1000);
 		assertThat(amount).isEqualTo(200.00);
 		assertThat(owner).isEqualTo("Admin");
+		assertThat(product).isEqualTo("Computer quantistico");
+		assertThat(quantity).isEqualTo(5);
 	}
 	
 	
 	@Test
 	@DirtiesContext
 	void shouldUpdateAnExistingOrderOnBehalfOfOthersUsingReservedUri() {
-		Order orderUpdate = new Order(null, 200.00, "Alice");
+		Order orderUpdate = new Order(null, 200.00, "Alice", "Computer quantistico", 5);
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.exchange("/admin/orders/99", HttpMethod.PUT, request, Void.class);
+				.exchange("/admin/orders/100", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
 		// check that update has really changed the data store
 		// verification 1: admin should see the new order
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders/99", String.class);
+				.getForEntity("/admin/orders/100", String.class);
 		
 		assertThat(responseToGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(responseToGet.getBody());
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
 		String owner = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Integer quantity = documentContext.read("$.quantity");
 		
-		assertThat(id).isEqualTo(99);
+		assertThat(id).isEqualTo(100);
 		assertThat(amount).isEqualTo(200.00);
 		assertThat(owner).isEqualTo("Alice");
+		assertThat(product).isEqualTo("Computer quantistico");
+		assertThat(quantity).isEqualTo(5);
 	}
 	
 	
 	@Test
 	@DirtiesContext
 	void shouldUpdateAnExistingOrderOnBehalfOfOthersUsingPublicUri() {
-		Order orderUpdate = new Order(null, 200.00, "Alice");
+		Order orderUpdate = new Order(null, 200.00, "Alice", "Computer quantistico", 5);
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.exchange("/orders/99", HttpMethod.PUT, request, Void.class);
+				.exchange("/orders/100", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
 		// check that update has really changed the data store
 		// verification 1: admin should see the new order
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders/99", String.class);
+				.getForEntity("/orders/100", String.class);
 		
 		assertThat(responseToGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(responseToGet.getBody());
 		Number id = documentContext.read("$.id");
 		Double amount = documentContext.read("$.amount");
 		String owner = documentContext.read("$.owner");
+		String product = documentContext.read("$.product");
+		Integer quantity = documentContext.read("$.quantity");
 		
-		assertThat(id).isEqualTo(99);
+		assertThat(id).isEqualTo(100);
 		assertThat(amount).isEqualTo(200.00);
 		assertThat(owner).isEqualTo("Alice");
+		assertThat(product).isEqualTo("Computer quantistico");
+		assertThat(quantity).isEqualTo(5);
 	}
 
 	
@@ -431,13 +481,19 @@ class BeordersApplicationAdminTests {
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
 		JSONArray page = documentContext.read("$[*]");
-		assertThat(page).hasSize(7);
-
+		JSONArray ids = documentContext.read("$..id");
 		JSONArray amounts = documentContext.read("$..amount");
 		JSONArray owners = documentContext.read("$..owner");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
 
-		assertThat(amounts).containsExactly(123.99, 1100.99, 1200.99, 1300.99, 1400.99, 1600.99, 1968.05);
-		assertThat(owners).containsExactlyInAnyOrder("Alice", "Alice", "Alice", "Alice", "Alice", "Cathy", "Admin");
+		assertThat(page).hasSize(9);
+		assertThat(ids).containsExactlyInAnyOrder(50, 100, 105, 110, 200, 300, 400, 600, 1000);
+		assertThat(amounts).containsExactlyInAnyOrder(1100.99, 450.00, 500.50, 250.00, 1200.99, 1300.99, 1400.99, 1600.99, 1968.05);
+		assertThat(owners).containsExactlyInAnyOrder("Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Cathy", "Admin");
+		assertThat(products).containsExactlyInAnyOrder("Food", "Golden Ring", "Ring with diamonds",
+				"Ring", "Motorbike", "Dogfood", "Fork", "Dogfood", "Computer");
+		assertThat(quantities).containsExactlyInAnyOrder(10, 10, 5, 1, 1, 1, 1, 1, 1);
 	}
 	
 	
@@ -470,7 +526,7 @@ class BeordersApplicationAdminTests {
 	
 	@Test
 	void shouldNotUpdateAnOrderThatDoesNotExistUsingReservedUri() {
-		Order unknownOrder = new Order(null, 19.99, null);
+		Order unknownOrder = new Order(null, 19.99, null, null, null);
 		HttpEntity<Order> request = new HttpEntity<>(unknownOrder);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
@@ -482,7 +538,7 @@ class BeordersApplicationAdminTests {
 	
 	@Test
 	void shouldNotUpdateAnOrderThatDoesNotExistUsingPublicUri() {
-		Order unknownOrder = new Order(null, 19.99, null);
+		Order unknownOrder = new Order(null, 19.99, null, null, null);
 		HttpEntity<Order> request = new HttpEntity<>(unknownOrder);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
@@ -531,7 +587,7 @@ class BeordersApplicationAdminTests {
 	void shouldAdminDeleteAnExistingOrderOfOthersUsingReservedUri() {
 		ResponseEntity<Void> response = restTemplate
 			.withBasicAuth("Admin", "admin")
-			.exchange("/admin/orders/99", HttpMethod.DELETE, null, Void.class);
+			.exchange("/admin/orders/100", HttpMethod.DELETE, null, Void.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
@@ -539,19 +595,19 @@ class BeordersApplicationAdminTests {
 		// STEP 1: the admin doesn't see it anymore using the reserved URI
 		ResponseEntity<String> getResponseStep1 = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders/99", String.class);
+				.getForEntity("/admin/orders/100", String.class);
 			assertThat(getResponseStep1.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
 		// STEP 2: the admin doesn't see it anymore using the public URI
 		ResponseEntity<String> getResponseStep2 = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders/99", String.class);
+				.getForEntity("/orders/100", String.class);
 			assertThat(getResponseStep2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 			
 		// STEP 3: the owner doesn't see it anymore using the public URI
 		ResponseEntity<String> getResponseStep3 = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders/99", String.class);
+				.getForEntity("/orders/100", String.class);
 			assertThat(getResponseStep3.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 	
@@ -561,7 +617,7 @@ class BeordersApplicationAdminTests {
 	void shouldAdminDeleteAnExistingOrderOfOthersUsingPublicUri() {
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.exchange("/orders/99", HttpMethod.DELETE, null, Void.class);
+				.exchange("/orders/300", HttpMethod.DELETE, null, Void.class);
 
 			assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 			
@@ -569,19 +625,19 @@ class BeordersApplicationAdminTests {
 			// STEP 1: the admin doesn't see it anymore using the reserved URI
 			ResponseEntity<String> getResponseStep1 = restTemplate
 					.withBasicAuth("Admin", "admin")
-					.getForEntity("/admin/orders/99", String.class);
+					.getForEntity("/admin/orders/300", String.class);
 				assertThat(getResponseStep1.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
 			// STEP 2: the admin doesn't see it anymore using the public URI
 			ResponseEntity<String> getResponseStep2 = restTemplate
 					.withBasicAuth("Admin", "admin")
-					.getForEntity("/orders/99", String.class);
+					.getForEntity("/orders/300", String.class);
 				assertThat(getResponseStep2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				
 			// STEP 3: the owner doesn't see it anymore using the public URI
 			ResponseEntity<String> getResponseStep3 = restTemplate
 					.withBasicAuth("Alice", "alice")
-					.getForEntity("/orders/99", String.class);
+					.getForEntity("/orders/300", String.class);
 				assertThat(getResponseStep3.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 	
@@ -605,13 +661,19 @@ class BeordersApplicationAdminTests {
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
 		int ordersCount = documentContext.read("$.length()");
-		assertThat(ordersCount).isEqualTo(7);
-		
 		JSONArray ids = documentContext.read("$..id");
-		assertThat(ids).containsExactlyInAnyOrder(99, 100, 200, 300, 400, 600, 1000);
-		
 		JSONArray amounts = documentContext.read("$..amount");
-		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99, 1600.99, 1968.05);
+		JSONArray owners = documentContext.read("$..owner");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
+		
+		assertThat(ordersCount).isEqualTo(9);
+		assertThat(ids).containsExactlyInAnyOrder(50, 100, 105, 110, 200, 300, 400, 600, 1000);
+		assertThat(amounts).containsExactlyInAnyOrder(1100.99, 450.00, 500.50, 250.00, 1200.99, 1300.99, 1400.99, 1600.99, 1968.05);
+		assertThat(owners).containsExactlyInAnyOrder("Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Cathy", "Admin");
+		assertThat(products).containsExactlyInAnyOrder("Food", "Golden Ring", "Ring with diamonds",
+				"Ring", "Motorbike", "Dogfood", "Fork", "Dogfood", "Computer");
+		assertThat(quantities).containsExactlyInAnyOrder(10, 10, 5, 1, 1, 1, 1, 1, 1);
 	}
 
 	
@@ -624,13 +686,19 @@ class BeordersApplicationAdminTests {
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
 		int ordersCount = documentContext.read("$.length()");
-		assertThat(ordersCount).isEqualTo(7);
-		
 		JSONArray ids = documentContext.read("$..id");
-		assertThat(ids).containsExactlyInAnyOrder(99, 100, 200, 300, 400, 600, 1000);
-		
 		JSONArray amounts = documentContext.read("$..amount");
-		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99, 1600.99, 1968.05);
+		JSONArray owners = documentContext.read("$..owner");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
+		
+		assertThat(ordersCount).isEqualTo(9);
+		assertThat(ids).containsExactlyInAnyOrder(50, 100, 105, 110, 200, 300, 400, 600, 1000);
+		assertThat(amounts).containsExactlyInAnyOrder(1100.99, 450.00, 500.50, 250.00, 1200.99, 1300.99, 1400.99, 1600.99, 1968.05);
+		assertThat(owners).containsExactlyInAnyOrder("Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Alice", "Cathy", "Admin");
+		assertThat(products).containsExactlyInAnyOrder("Food", "Golden Ring", "Ring with diamonds",
+				"Ring", "Motorbike", "Dogfood", "Fork", "Dogfood", "Computer");
+		assertThat(quantities).containsExactlyInAnyOrder(10, 10, 5, 1, 1, 1, 1, 1, 1);
 	}
 	
 }

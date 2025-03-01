@@ -1,7 +1,7 @@
 [
-	{"id":  99, "amount":  123.99, "owner": "Alice"},
-	{"id": 100, "amount": 1100.99, "owner": "Alice"},
-	{"id": 200, "amount": 1200.99, "owner": "Alice"},
-	{"id": 300, "amount": 1300.99, "owner": "Alice"},
-	{"id": 400, "amount": 1400.99, "owner": "Alice"}
+	{"id":  99, "amount":  123.99, "owner": "Alice", "product":"Ring",      "quantity":1},
+	{"id": 100, "amount": 1100.99, "owner": "Alice", "product":"Food",      "quantity":1},
+	{"id": 200, "amount": 1200.99, "owner": "Alice", "product":"Motorbike", "quantity":1},
+	{"id": 300, "amount": 1300.99, "owner": "Alice", "product":"Dogfood",   "quantity":1},
+	{"id": 400, "amount": 1400.99, "owner": "Alice", "product":"Fork",      "quantity":1}
 ]
