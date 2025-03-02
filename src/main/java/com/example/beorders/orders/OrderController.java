@@ -24,7 +24,7 @@ import java.security.Principal;
 
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/v1/orders")
 public class OrderController {
 	private final OrderRepository orderRepository;
 	
@@ -89,7 +89,7 @@ public class OrderController {
 		Order savedOrderWithOwner = new Order(null, newOrder.amount(), newOwner, newOrder.product(), newOrder.quantity());
 		Order savedOrder = orderRepository.save(savedOrderWithOwner);
 		URI locationOfSavedOrder = ucb
-				.path("/orders/{newOrderId}")
+				.path("/v1/orders/{newOrderId}")
 				.buildAndExpand(savedOrder.id())
 				.toUri();
 		return ResponseEntity.created(locationOfSavedOrder).build();

@@ -19,11 +19,11 @@ class SecurityConfig {
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 		.authorizeHttpRequests(request -> request
-				.requestMatchers("/admin/orders/**")
+				.requestMatchers("/v1/admin/orders/**")
 				.hasAnyRole("ADMIN"))
 				.httpBasic(Customizer.withDefaults())
 		.authorizeHttpRequests(request -> request
-				.requestMatchers("/orders/**")
+				.requestMatchers("/v1/orders/**")
 				.hasAnyRole("ADMIN", "ORDER_OWNER"))
 				.httpBasic(Customizer.withDefaults())
 		.csrf(csrf -> csrf.disable());

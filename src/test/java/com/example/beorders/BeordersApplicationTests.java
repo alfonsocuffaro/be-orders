@@ -35,7 +35,7 @@ class BeordersApplicationTests {
 	void shouldReturnAnOrderWhenDataIsSaved() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Cathy", "cathy")
-				.getForEntity("/orders/600", String.class);
+				.getForEntity("/v1/orders/600", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -58,7 +58,7 @@ class BeordersApplicationTests {
 	void shouldNotReturnAnOrderWithAnUnknownId() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders/9999", String.class);
+				.getForEntity("/v1/orders/9999", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		assertThat(response.getBody()).isBlank();
@@ -72,7 +72,7 @@ class BeordersApplicationTests {
 		Order newOrd = new Order(null, 250.00, null, "Computer quantistico", 5);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.postForEntity("/orders", newOrd, Void.class);
+				.postForEntity("/v1/orders", newOrd, Void.class);
 		assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		
 		URI locationOfNewOrder = createResponse.getHeaders().getLocation();
@@ -100,7 +100,7 @@ class BeordersApplicationTests {
 	void shouldReturnAllOrdersWhenListIsRequested() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders", String.class);
+				.getForEntity("/v1/orders", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -127,7 +127,7 @@ class BeordersApplicationTests {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
 				// TODO make searches case insensitive
-				.getForEntity("/orders?productType=Dogfood", String.class);
+				.getForEntity("/v1/orders?productType=Dogfood", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -153,7 +153,7 @@ class BeordersApplicationTests {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
 				// TODO make searches case insensitive
-				.getForEntity("/orders?productType=FakeProductType", String.class);
+				.getForEntity("/v1/orders?productType=FakeProductType", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -171,7 +171,7 @@ class BeordersApplicationTests {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
 				// TODO make searches case insensitive
-				.getForEntity("/orders?productType=Computer", String.class);
+				.getForEntity("/v1/orders?productType=Computer", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -187,13 +187,13 @@ class BeordersApplicationTests {
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.exchange("/orders/200", HttpMethod.PUT, request, Void.class);
+				.exchange("/v1/orders/200", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
 		// check that update has really changed the data store
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders/200", String.class);
+				.getForEntity("/v1/orders/200", String.class);
 		assertThat(responseToGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(responseToGet.getBody());
 		Number id = documentContext.read("$.id");
@@ -214,7 +214,7 @@ class BeordersApplicationTests {
 	void shouldReturnAPageOfOrders() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders?page=0&size=1", String.class);
+				.getForEntity("/v1/orders?page=0&size=1", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -227,7 +227,7 @@ class BeordersApplicationTests {
 	void shouldReturnASortedPageOfOrders() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders?page=0&size=1&sort=amount,desc", String.class);
+				.getForEntity("/v1/orders?page=0&size=1&sort=amount,desc", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -245,7 +245,7 @@ class BeordersApplicationTests {
 	void shouldReturnASortedPageOfOrdersWithNoParametersAndUseDefaultValues() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders", String.class);
+				.getForEntity("/v1/orders", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -272,7 +272,7 @@ class BeordersApplicationTests {
 	void shouldNotReturnAnOrderWhenUsingBadUsername() {
 	    ResponseEntity<String> response = restTemplate
 	      .withBasicAuth("BAD_USERNAME", "alice")
-	      .getForEntity("/orders/99", String.class);
+	      .getForEntity("/v1/orders/100", String.class);
 	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 	
@@ -281,7 +281,7 @@ class BeordersApplicationTests {
 	void shouldNotReturnAnOrderWhenUsingBadPassword() {
 	    ResponseEntity<String> response = restTemplate
 	      .withBasicAuth("Alice", "BAD_PASSWORD")
-	      .getForEntity("/orders/99", String.class);
+	      .getForEntity("/v1/orders/100", String.class);
 	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 	
@@ -290,7 +290,7 @@ class BeordersApplicationTests {
 	void shouldNotReturnAnOrderWhenUsingBadCredentials() {
 	    ResponseEntity<String> response = restTemplate
 	      .withBasicAuth("BAD_USER", "BAD_PASSWORD")
-	      .getForEntity("/orders/99", String.class);
+	      .getForEntity("/v1/orders/100", String.class);
 	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 	
@@ -299,7 +299,7 @@ class BeordersApplicationTests {
 	void shouldRejectUsersWhoAreNotOrderOwners() {
 		ResponseEntity<String> response = restTemplate
 			.withBasicAuth("Boris", "boris")
-			.getForEntity("/orders/99", String.class);
+			.getForEntity("/v1/orders/100", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 	
@@ -308,7 +308,7 @@ class BeordersApplicationTests {
 	void shouldNotAllowAccessToOrdersTheyDoNotOwn() {
 		ResponseEntity<String> response = restTemplate
 		.withBasicAuth("Alice", "alice")
-		.getForEntity("/orders/600", String.class); // Cathy's data
+		.getForEntity("/v1/orders/600", String.class); // Cathy's data
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 	
@@ -319,7 +319,7 @@ class BeordersApplicationTests {
 		HttpEntity<Order> request = new HttpEntity<>(unknownOrder);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.exchange("/orders/99999", HttpMethod.PUT, request, Void.class);
+				.exchange("/v1/orders/99999", HttpMethod.PUT, request, Void.class);
 	
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
@@ -331,7 +331,7 @@ class BeordersApplicationTests {
 		HttpEntity<Order> request = new HttpEntity<>(cathysOrder);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-		.exchange("/orders/600", HttpMethod.PUT, request, Void.class);
+		.exchange("/v1/orders/600", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 	
@@ -341,7 +341,7 @@ class BeordersApplicationTests {
 	void shouldDeleteAnExistingOrder() {
 		ResponseEntity<Void> response = restTemplate
 		.withBasicAuth("Alice", "alice")
-		.exchange("/orders/200", HttpMethod.DELETE, null, Void.class);
+		.exchange("/v1/orders/200", HttpMethod.DELETE, null, Void.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
@@ -349,7 +349,7 @@ class BeordersApplicationTests {
 		// now test that the order is actually deleted
 		ResponseEntity<String> getResponse = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders/200", String.class);
+				.getForEntity("/v1/orders/200", String.class);
 			assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		
 	}
@@ -359,7 +359,7 @@ class BeordersApplicationTests {
 	void shouldNotDeleteAnOrderThatDoesNotExist() {
 		ResponseEntity<Void> deleteResponse = restTemplate
 			.withBasicAuth("Alice", "alice")
-			.exchange("/orders/99999", HttpMethod.DELETE, null, Void.class);
+			.exchange("/v1/orders/99999", HttpMethod.DELETE, null, Void.class);
 
 		assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
@@ -369,7 +369,7 @@ class BeordersApplicationTests {
 	void shouldNotAllowDeletionOfOrdersTheyDoNotOwn() {
 		ResponseEntity<Void> deleteResponse = restTemplate
 			.withBasicAuth("Alice", "alice")
-			.exchange("/orders/600", HttpMethod.DELETE, null, Void.class);
+			.exchange("/v1/orders/600", HttpMethod.DELETE, null, Void.class);
 		
 		assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		
@@ -377,7 +377,7 @@ class BeordersApplicationTests {
 		// order with id 600 is owned by Cathy, so we must use Cathy to try access it
 		ResponseEntity<String> getResponse = restTemplate
 				.withBasicAuth("Cathy", "cathy")
-				.getForEntity("/orders/600", String.class);
+				.getForEntity("/v1/orders/600", String.class);
 		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 	}
@@ -409,7 +409,7 @@ class BeordersApplicationTests {
 	void shouldNotAccessAdminReservedUriWithGet() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/admin/orders", String.class);
+				.getForEntity("/v1/admin/orders", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
@@ -418,7 +418,7 @@ class BeordersApplicationTests {
 	void shouldNotAccessAdminReservedUriWithGetSpecifyingAProductType() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/admin/orders?productType=Computer", String.class);
+				.getForEntity("/v1/admin/orders?productType=Computer", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
@@ -428,7 +428,7 @@ class BeordersApplicationTests {
 		Order newOrder = new Order(null, 250.00, "Alice", "Computer laptop", 2);
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.postForEntity("/admin/orders?productType=Computer", newOrder, String.class);
+				.postForEntity("/v1/admin/orders?productType=Computer", newOrder, String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
@@ -439,7 +439,7 @@ class BeordersApplicationTests {
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.exchange("/admin/orders/100", HttpMethod.PUT, request, Void.class);
+				.exchange("/v1/admin/orders/100", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
@@ -449,7 +449,7 @@ class BeordersApplicationTests {
 	void shouldNotAccessAdminReservedUriWithDelete() {
 		ResponseEntity<Void> response = restTemplate
 			.withBasicAuth("Alice", "alice")
-			.exchange("/admin/orders/100", HttpMethod.DELETE, null, Void.class);
+			.exchange("/v1/admin/orders/100", HttpMethod.DELETE, null, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 

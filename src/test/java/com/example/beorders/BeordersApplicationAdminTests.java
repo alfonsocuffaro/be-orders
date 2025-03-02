@@ -36,7 +36,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnAnOrderWhenDataIsSavedUsingReservedUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders/100", String.class);
+				.getForEntity("/v1/admin/orders/100", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -59,7 +59,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnAnOrderWhenDataIsSavedUsingPublicUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders/100", String.class);
+				.getForEntity("/v1/orders/100", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -82,7 +82,7 @@ class BeordersApplicationAdminTests {
 	void shouldNotReturnAnOrderWithAnUnknownId() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders/5000", String.class);
+				.getForEntity("/v1/admin/orders/5000", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		assertThat(response.getBody()).isBlank();
@@ -96,7 +96,7 @@ class BeordersApplicationAdminTests {
 		Order newOrder = new Order(null, 250.00, null, "Computer laptop", 2);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.postForEntity("/admin/orders", newOrder, Void.class);
+				.postForEntity("/v1/admin/orders", newOrder, Void.class);
 		assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		
 		URI locationOfNewOrder = createResponse.getHeaders().getLocation();
@@ -128,7 +128,7 @@ class BeordersApplicationAdminTests {
 		Order newOrd = new Order(null, 250.00, "Alice", "Bicicletta", 10);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.postForEntity("/admin/orders", newOrd, Void.class);
+				.postForEntity("/v1/admin/orders", newOrd, Void.class);
 		assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		
 		// check that update has really changed the data store
@@ -186,7 +186,7 @@ class BeordersApplicationAdminTests {
 		Order newOrd = new Order(null, 250.00, "Alice", "Bicicletta", 10);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.postForEntity("/orders", newOrd, Void.class);
+				.postForEntity("/v1/orders", newOrd, Void.class);
 		assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		
 		// check that update has really changed the data store
@@ -241,7 +241,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnAllOrdersOfEveryoneWhenListIsRequestedUsingReservedUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders", String.class);
+				.getForEntity("/v1/admin/orders", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -266,7 +266,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnAllOrdersOfEveryoneWhenListIsRequestedUsingPublicUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders", String.class);
+				.getForEntity("/v1/orders", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -296,7 +296,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnAllOrdersOfEveryoneHavingASpecificProductTypeWhenListIsRequestedUsingReservedUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders?productType=Dogfood", String.class);
+				.getForEntity("/v1/admin/orders?productType=Dogfood", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -320,7 +320,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnNoOrdersHavingANotExisistingProductTypeWhenListIsRequestedUsingPublicUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders?productType=FakeProductType", String.class);
+				.getForEntity("/v1/orders?productType=FakeProductType", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -338,13 +338,13 @@ class BeordersApplicationAdminTests {
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.exchange("/admin/orders/1000", HttpMethod.PUT, request, Void.class);
+				.exchange("/v1/admin/orders/1000", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
 		// check that update has really changed the data store
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders/1000", String.class);
+				.getForEntity("/v1/admin/orders/1000", String.class);
 		assertThat(responseToGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(responseToGet.getBody());
 		Number id = documentContext.read("$.id");
@@ -368,13 +368,13 @@ class BeordersApplicationAdminTests {
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.exchange("/orders/1000", HttpMethod.PUT, request, Void.class);
+				.exchange("/v1/orders/1000", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
 		// check that update has really changed the data store
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders/1000", String.class);
+				.getForEntity("/v1/orders/1000", String.class);
 		assertThat(responseToGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(responseToGet.getBody());
 		Number id = documentContext.read("$.id");
@@ -398,14 +398,14 @@ class BeordersApplicationAdminTests {
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.exchange("/admin/orders/100", HttpMethod.PUT, request, Void.class);
+				.exchange("/v1/admin/orders/100", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
 		// check that update has really changed the data store
 		// verification 1: admin should see the new order
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders/100", String.class);
+				.getForEntity("/v1/admin/orders/100", String.class);
 		
 		assertThat(responseToGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(responseToGet.getBody());
@@ -430,14 +430,14 @@ class BeordersApplicationAdminTests {
 		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.exchange("/orders/100", HttpMethod.PUT, request, Void.class);
+				.exchange("/v1/orders/100", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
 		// check that update has really changed the data store
 		// verification 1: admin should see the new order
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders/100", String.class);
+				.getForEntity("/v1/orders/100", String.class);
 		
 		assertThat(responseToGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(responseToGet.getBody());
@@ -459,7 +459,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnAPageOfOrdersUsingReservedUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders?page=0&size=1", String.class);
+				.getForEntity("/v1/admin/orders?page=0&size=1", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -471,7 +471,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnAPageOfOrdersUsingPublicUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders?page=0&size=1", String.class);
+				.getForEntity("/v1/orders?page=0&size=1", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -484,7 +484,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnASortedPageOfOrdersUsingReservedUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders?page=0&size=1&sort=amount,desc", String.class);
+				.getForEntity("/v1/admin/orders?page=0&size=1&sort=amount,desc", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -502,7 +502,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnASortedPageOfOrdersUsingPublicUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders?page=0&size=1&sort=amount,desc", String.class);
+				.getForEntity("/v1/orders?page=0&size=1&sort=amount,desc", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -520,7 +520,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnASortedPageOfOrdersWithNoParametersAndUseDefaultValues() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders", String.class);
+				.getForEntity("/v1/admin/orders", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -545,7 +545,7 @@ class BeordersApplicationAdminTests {
 	void shouldNotReturnAnOrderWhenUsingBadUsername() {
 	    ResponseEntity<String> response = restTemplate
 	      .withBasicAuth("BAD_USERNAME", "alice")
-	      .getForEntity("/admin/orders/99", String.class);
+	      .getForEntity("/v1/admin/orders/99", String.class);
 	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 	
@@ -554,7 +554,7 @@ class BeordersApplicationAdminTests {
 	void shouldNotReturnAnOrderWhenUsingBadPassword() {
 	    ResponseEntity<String> response = restTemplate
 	      .withBasicAuth("Admin", "BAD_PASSWORD")
-	      .getForEntity("/orders/99", String.class);
+	      .getForEntity("/v1/orders/99", String.class);
 	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 	
@@ -563,7 +563,7 @@ class BeordersApplicationAdminTests {
 	void shouldNotReturnAnOrderWhenUsingBadCredentials() {
 	    ResponseEntity<String> response = restTemplate
 	      .withBasicAuth("BAD_USER", "BAD_PASSWORD")
-	      .getForEntity("/admin/orders/99", String.class);
+	      .getForEntity("/v1/admin/orders/99", String.class);
 	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 	
@@ -574,7 +574,7 @@ class BeordersApplicationAdminTests {
 		HttpEntity<Order> request = new HttpEntity<>(unknownOrder);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.exchange("/admin/orders/99999", HttpMethod.PUT, request, Void.class);
+				.exchange("/v1/admin/orders/99999", HttpMethod.PUT, request, Void.class);
 	
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
@@ -586,7 +586,7 @@ class BeordersApplicationAdminTests {
 		HttpEntity<Order> request = new HttpEntity<>(unknownOrder);
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.exchange("/orders/99999", HttpMethod.PUT, request, Void.class);
+				.exchange("/v1/orders/99999", HttpMethod.PUT, request, Void.class);
 	
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
@@ -597,14 +597,14 @@ class BeordersApplicationAdminTests {
 	void shouldAdminDeleteAnExistingOrderOfAdminUsingReservedUri() {
 		ResponseEntity<Void> response = restTemplate
 			.withBasicAuth("Admin", "admin")
-			.exchange("/admin/orders/1000", HttpMethod.DELETE, null, Void.class);
+			.exchange("/v1/admin/orders/1000", HttpMethod.DELETE, null, Void.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
 		// now test that the order is actually deleted
 		ResponseEntity<String> getResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
-			.getForEntity("/admin/orders/1000", String.class);
+			.getForEntity("/v1/admin/orders/1000", String.class);
 			assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 	
@@ -614,14 +614,14 @@ class BeordersApplicationAdminTests {
 	void shouldAdminDeleteAnExistingOrderOfAdminUsingPublicUri() {
 		ResponseEntity<Void> response = restTemplate
 			.withBasicAuth("Admin", "admin")
-			.exchange("/orders/1000", HttpMethod.DELETE, null, Void.class);
+			.exchange("/v1/orders/1000", HttpMethod.DELETE, null, Void.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
 		// now test that the order is actually deleted
 		ResponseEntity<String> getResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
-			.getForEntity("/orders/1000", String.class);
+			.getForEntity("/v1/orders/1000", String.class);
 			assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 	
@@ -631,7 +631,7 @@ class BeordersApplicationAdminTests {
 	void shouldAdminDeleteAnExistingOrderOfOthersUsingReservedUri() {
 		ResponseEntity<Void> response = restTemplate
 			.withBasicAuth("Admin", "admin")
-			.exchange("/admin/orders/100", HttpMethod.DELETE, null, Void.class);
+			.exchange("/v1/admin/orders/100", HttpMethod.DELETE, null, Void.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
@@ -639,19 +639,19 @@ class BeordersApplicationAdminTests {
 		// STEP 1: the admin doesn't see it anymore using the reserved URI
 		ResponseEntity<String> getResponseStep1 = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders/100", String.class);
+				.getForEntity("/v1/admin/orders/100", String.class);
 			assertThat(getResponseStep1.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
 		// STEP 2: the admin doesn't see it anymore using the public URI
 		ResponseEntity<String> getResponseStep2 = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders/100", String.class);
+				.getForEntity("/v1/orders/100", String.class);
 			assertThat(getResponseStep2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 			
 		// STEP 3: the owner doesn't see it anymore using the public URI
 		ResponseEntity<String> getResponseStep3 = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.getForEntity("/orders/100", String.class);
+				.getForEntity("/v1/orders/100", String.class);
 			assertThat(getResponseStep3.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 	
@@ -661,7 +661,7 @@ class BeordersApplicationAdminTests {
 	void shouldAdminDeleteAnExistingOrderOfOthersUsingPublicUri() {
 		ResponseEntity<Void> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.exchange("/orders/300", HttpMethod.DELETE, null, Void.class);
+				.exchange("/v1/orders/300", HttpMethod.DELETE, null, Void.class);
 
 			assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 			
@@ -669,19 +669,19 @@ class BeordersApplicationAdminTests {
 			// STEP 1: the admin doesn't see it anymore using the reserved URI
 			ResponseEntity<String> getResponseStep1 = restTemplate
 					.withBasicAuth("Admin", "admin")
-					.getForEntity("/admin/orders/300", String.class);
+					.getForEntity("/v1/admin/orders/300", String.class);
 				assertThat(getResponseStep1.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
 			// STEP 2: the admin doesn't see it anymore using the public URI
 			ResponseEntity<String> getResponseStep2 = restTemplate
 					.withBasicAuth("Admin", "admin")
-					.getForEntity("/orders/300", String.class);
+					.getForEntity("/v1/orders/300", String.class);
 				assertThat(getResponseStep2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				
 			// STEP 3: the owner doesn't see it anymore using the public URI
 			ResponseEntity<String> getResponseStep3 = restTemplate
 					.withBasicAuth("Alice", "alice")
-					.getForEntity("/orders/300", String.class);
+					.getForEntity("/v1/orders/300", String.class);
 				assertThat(getResponseStep3.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 	
@@ -690,7 +690,7 @@ class BeordersApplicationAdminTests {
 	void shouldNotDeleteAnOrderThatDoesNotExist() {
 		ResponseEntity<Void> deleteResponse = restTemplate
 			.withBasicAuth("Admin", "admin")
-			.exchange("/admin/orders/99999", HttpMethod.DELETE, null, Void.class);
+			.exchange("/v1/admin/orders/99999", HttpMethod.DELETE, null, Void.class);
 
 		assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
@@ -700,7 +700,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnToAdminAllOrdersWhenListIsRequestedUsingReservedUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/admin/orders", String.class);
+				.getForEntity("/v1/admin/orders", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
@@ -725,7 +725,7 @@ class BeordersApplicationAdminTests {
 	void shouldReturnToAdminAllOrdersWhenListIsRequestedUsingPublicUri() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.getForEntity("/orders", String.class);
+				.getForEntity("/v1/orders", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
