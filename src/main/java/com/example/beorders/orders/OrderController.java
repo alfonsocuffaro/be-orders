@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.security.Principal;
@@ -33,29 +34,40 @@ public class OrderController {
 
 
 	@GetMapping
-	private ResponseEntity<List<Order>> findAll(Pageable pageable, Principal principal) {
+	private ResponseEntity<List<Order>> findAll(
+			@RequestParam(required = false) String productType,
+			Pageable pageable, Principal principal
+	) {
+		PageRequest pageRequest = PageRequest.of(
+						pageable.getPageNumber(),
+						pageable.getPageSize(),
+						pageable.getSortOr(Sort.by(Sort.Direction.ASC, "amount"))
+					);
 		
-		// TODO implement a better solution instead of such a naive one
+		// TODO implement a better solution for testing ADMIN roles
+		// instead of such a naive one
 		if (principal.getName().equals("Admin")) {
-			Page<Order> adminPage = orderRepository.findAll(
-				PageRequest.of(
-					pageable.getPageNumber(),
-					pageable.getPageSize(),
-					pageable.getSortOr(Sort.by(Sort.Direction.ASC, "amount"))
-				));
+			
+			Page<Order> adminPage = Strings.isBlank(productType) ?
+					orderRepository.findAll(pageRequest)
+					// TODO make searches case insensitive
+					: orderRepository.findByProduct(productType, pageRequest);
 
 			return ResponseEntity.ok(adminPage.getContent());
 		}
 		
-		Page<Order> page = orderRepository.findByOwner(
-			principal.getName(),
-			PageRequest.of(
-				pageable.getPageNumber(),
-				pageable.getPageSize(),
-				pageable.getSortOr(Sort.by(Sort.Direction.ASC, "amount"))
-			));
+		String productOwner = principal.getName();
+		Page<Order> page = Strings.isBlank(productType) ?
+				orderRepository.findByOwner(productOwner, pageRequest)
+				// TODO make searches case insensitive
+				: orderRepository.findByOwnerAndProduct(productOwner, productType, pageRequest);
+		
 		return ResponseEntity.ok(page.getContent());
 	}
+	
+	
+	
+	
 	
 	
 	@GetMapping("/{requestedId}")

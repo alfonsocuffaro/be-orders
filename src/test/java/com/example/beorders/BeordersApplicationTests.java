@@ -2,7 +2,6 @@ package com.example.beorders;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.net.URI;
 
 import org.junit.jupiter.api.Test;
@@ -120,6 +119,64 @@ class BeordersApplicationTests {
 		assertThat(products).containsExactlyInAnyOrder("Food", "Golden Ring", "Ring with diamonds",
 				"Ring", "Motorbike", "Dogfood", "Fork");
 		assertThat(quantities).containsExactlyInAnyOrder(10, 10, 5, 1, 1, 1, 1);
+	}
+
+	
+	@Test
+	void shouldReturnAllOrdersHavingASpecificProductTypeWhenListIsRequested() {
+		ResponseEntity<String> response = restTemplate
+				.withBasicAuth("Alice", "alice")
+				// TODO make searches case insensitive
+				.getForEntity("/orders?productType=Dogfood", String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		int ordersCount = documentContext.read("$.length()");
+		
+		JSONArray ids = documentContext.read("$..id");
+		JSONArray amounts = documentContext.read("$..amount");
+		JSONArray owners = documentContext.read("$..owner");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
+
+		assertThat(ordersCount).isEqualTo(1);
+		assertThat(ids).containsExactlyInAnyOrder(300);
+		assertThat(amounts).containsExactlyInAnyOrder(1300.99);
+		assertThat(owners).containsExactlyInAnyOrder("Alice");
+		assertThat(products).containsExactlyInAnyOrder("Dogfood");
+		assertThat(quantities).containsExactlyInAnyOrder(1);
+	}
+	
+	
+	@Test
+	void shouldReturnNoOrdersHavingASpecifiedAFakeProductTypeWhenListIsRequested() {
+		ResponseEntity<String> response = restTemplate
+				.withBasicAuth("Alice", "alice")
+				// TODO make searches case insensitive
+				.getForEntity("/orders?productType=FakeProductType", String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		int ordersCount = documentContext.read("$.length()");
+		assertThat(ordersCount).isZero();
+	}
+	
+	
+	@Test
+	// Alice searches its own orders for an order having a product of type Computer.
+	// Computer is a valid product type (it used in order 1000 placed by user Admin) but
+	// no orders in Alice's orders have that product type.
+	// In this case an empty list should be returned.
+	void shouldReturnNoOrdersHavingASpecifiedAProductTypeNotUsedInMyOrdersWhenListIsRequested() {
+		ResponseEntity<String> response = restTemplate
+				.withBasicAuth("Alice", "alice")
+				// TODO make searches case insensitive
+				.getForEntity("/orders?productType=Computer", String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		int ordersCount = documentContext.read("$.length()");
+		assertThat(ordersCount).isZero();
 	}
 	
 	
@@ -343,5 +400,57 @@ class BeordersApplicationTests {
 //		JSONArray amounts = documentContext.read("$..amount");
 //		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99, 1600.99);
 //	}
+
 	
+
+	
+	
+	@Test
+	void shouldNotAccessAdminReservedUriWithGet() {
+		ResponseEntity<String> response = restTemplate
+				.withBasicAuth("Alice", "alice")
+				.getForEntity("/admin/orders", String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+	}
+
+	
+	@Test
+	void shouldNotAccessAdminReservedUriWithGetSpecifyingAProductType() {
+		ResponseEntity<String> response = restTemplate
+				.withBasicAuth("Alice", "alice")
+				.getForEntity("/admin/orders?productType=Computer", String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+	}
+
+	
+	@Test
+	void shouldNotAccessAdminReservedUriWithPost() {
+		Order newOrder = new Order(null, 250.00, "Alice", "Computer laptop", 2);
+		ResponseEntity<String> response = restTemplate
+				.withBasicAuth("Alice", "alice")
+				.postForEntity("/admin/orders?productType=Computer", newOrder, String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+	}
+
+	
+	@Test
+	void shouldNotAccessAdminReservedUriWithPut() {
+		Order orderUpdate = new Order(null, 250.00, "Alice", "Computer laptop", 2);
+		HttpEntity<Order> request = new HttpEntity<>(orderUpdate);
+		ResponseEntity<Void> response = restTemplate
+				.withBasicAuth("Alice", "alice")
+				.exchange("/admin/orders/100", HttpMethod.PUT, request, Void.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+	}
+
+
+
+	@Test
+	void shouldNotAccessAdminReservedUriWithDelete() {
+		ResponseEntity<Void> response = restTemplate
+			.withBasicAuth("Alice", "alice")
+			.exchange("/admin/orders/100", HttpMethod.DELETE, null, Void.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+	}
+
 }

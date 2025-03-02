@@ -93,10 +93,10 @@ class BeordersApplicationAdminTests {
 	@DirtiesContext
 	void shouldCreateANewOrderForAdminHimself() {
 		// owner parameter is null because the owner is taken from the principal
-		Order newOrd = new Order(null, 250.00, null, "Computer laptop", 2);
+		Order newOrder = new Order(null, 250.00, null, "Computer laptop", 2);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
-				.postForEntity("/admin/orders", newOrd, Void.class);
+				.postForEntity("/admin/orders", newOrder, Void.class);
 		assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		
 		URI locationOfNewOrder = createResponse.getHeaders().getLocation();
@@ -285,6 +285,50 @@ class BeordersApplicationAdminTests {
 				"Ring", "Motorbike", "Dogfood", "Fork", "Dogfood", "Computer");
 		assertThat(quantities).containsExactlyInAnyOrder(10, 10, 5, 1, 1, 1, 1, 1, 1);
 	}
+	
+	
+	
+	
+
+
+	
+	@Test
+	void shouldReturnAllOrdersOfEveryoneHavingASpecificProductTypeWhenListIsRequestedUsingReservedUri() {
+		ResponseEntity<String> response = restTemplate
+				.withBasicAuth("Admin", "admin")
+				.getForEntity("/admin/orders?productType=Dogfood", String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		int ordersCount = documentContext.read("$.length()");
+		JSONArray ids = documentContext.read("$..id");
+		JSONArray amounts = documentContext.read("$..amount");
+		JSONArray owners = documentContext.read("$..owner");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
+		
+		assertThat(ordersCount).isEqualTo(2);
+		assertThat(ids).containsExactlyInAnyOrder(300, 600);
+		assertThat(amounts).containsExactlyInAnyOrder(1300.99, 1600.99);
+		assertThat(owners).containsExactlyInAnyOrder("Alice", "Cathy");
+		assertThat(products).containsExactlyInAnyOrder("Dogfood", "Dogfood");
+		assertThat(quantities).containsExactlyInAnyOrder(1, 1);
+	}
+
+	
+	@Test
+	void shouldReturnNoOrdersHavingANotExisistingProductTypeWhenListIsRequestedUsingPublicUri() {
+		ResponseEntity<String> response = restTemplate
+				.withBasicAuth("Admin", "admin")
+				.getForEntity("/orders?productType=FakeProductType", String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		int ordersCount = documentContext.read("$.length()");
+		assertThat(ordersCount).isZero();
+	}
+	
+	
 	
 	
 	@Test
