@@ -12,9 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
-import com.example.beorders.orders.Order;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.example.beorders.orders.Order;
 
 @JsonTest
 public class OrderJsonTest {
