@@ -1,4 +1,4 @@
-package com.example.beorders;
+package com.example.beorders.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.example.beorders.Role;
+
 @Configuration
 class SecurityConfig {
 
@@ -20,11 +22,11 @@ class SecurityConfig {
 		http
 		.authorizeHttpRequests(request -> request
 				.requestMatchers("/v1/admin/orders/**")
-				.hasAnyRole("ADMIN"))
+				.hasAnyRole(Role.ADMIN.name()))
 				.httpBasic(Customizer.withDefaults())
 		.authorizeHttpRequests(request -> request
 				.requestMatchers("/v1/orders/**")
-				.hasAnyRole("ADMIN", "ORDER_OWNER"))
+				.hasAnyRole(Role.ADMIN.name(), Role.ORDER_OWNER.name()))
 				.httpBasic(Customizer.withDefaults())
 		.csrf(csrf -> csrf.disable());
 
@@ -36,10 +38,10 @@ class SecurityConfig {
 	UserDetailsService testOnlyUsers(PasswordEncoder passwordEncoder) {
 		User.UserBuilder users = User.builder();
 
-		UserDetails userAdmin = createUser("Admin", "admin", "ADMIN", passwordEncoder);
-		UserDetails userAlice = createUser("Alice", "alice", "ORDER_OWNER", passwordEncoder);
-		UserDetails userBoris = createUser("Boris", "boris", "NON_ORDER_OWNER", passwordEncoder);
-		UserDetails userCathy = createUser("Cathy", "cathy", "ORDER_OWNER", passwordEncoder);
+		UserDetails userAdmin = createUser("Admin", "admin", Role.ADMIN.name(), passwordEncoder);
+		UserDetails userAlice = createUser("Alice", "alice", Role.ORDER_OWNER.name(), passwordEncoder);
+		UserDetails userBoris = createUser("Boris", "boris", Role.NON_ORDER_OWNER.name(), passwordEncoder);
+		UserDetails userCathy = createUser("Cathy", "cathy", Role.ORDER_OWNER.name(), passwordEncoder);
 
 		return new InMemoryUserDetailsManager(userAdmin, userAlice, userBoris, userCathy);
 	}
