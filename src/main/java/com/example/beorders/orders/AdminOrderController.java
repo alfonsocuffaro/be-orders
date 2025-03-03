@@ -29,35 +29,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class AdminOrderController {
 	private final OrderRepository orderRepository;
 	
+	
 	private AdminOrderController(OrderRepository anOrderRepository) {
 		this.orderRepository = anOrderRepository;
 	}
-
-//
-//	@GetMapping
-//	private ResponseEntity<List<Order>> findAll_OLD(Pageable pageable, Principal principal) {
-//		
-//		// TODO implement a better solution instead of such a naive one
-//		if (principal.getName().equals("Admin")) {
-//			Page<Order> adminPage = orderRepository.findAll(
-//				PageRequest.of(
-//					pageable.getPageNumber(),
-//					pageable.getPageSize(),
-//					pageable.getSortOr(Sort.by(Sort.Direction.ASC, "amount"))
-//				));
-//
-//			return ResponseEntity.ok(adminPage.getContent());
-//		}
-//		
-//		Page<Order> page = orderRepository.findByOwner(
-//			principal.getName(),
-//			PageRequest.of(
-//				pageable.getPageNumber(),
-//				pageable.getPageSize(),
-//				pageable.getSortOr(Sort.by(Sort.Direction.ASC, "amount"))
-//			));
-//		return ResponseEntity.ok(page.getContent());
-//	}
 
 
 	@GetMapping
@@ -66,12 +41,6 @@ public class AdminOrderController {
 			Pageable pageable,
 			Principal principal
 	) {
-		
-		// TODO implement a better solution instead of such a naive one
-		if (!principal.getName().equals("Admin")) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-		}
-
 		PageRequest pageRequest = PageRequest.of(
 						pageable.getPageNumber(),
 						pageable.getPageSize(),
@@ -80,15 +49,8 @@ public class AdminOrderController {
 		
 		Page<Order> adminPage = Strings.isBlank(productType) ?
 				orderRepository.findAll(pageRequest)
-				// TODO make searches case insensitive
 				: orderRepository.findByProduct(productType, pageRequest);
-		
-//		Page<Order> page = orderRepository.findAll(
-//			PageRequest.of(
-//				pageable.getPageNumber(),
-//				pageable.getPageSize(),
-//				pageable.getSortOr(Sort.by(Sort.Direction.ASC, "amount"))
-//			));
+
 		return ResponseEntity.ok(adminPage.getContent());
 	}
 	

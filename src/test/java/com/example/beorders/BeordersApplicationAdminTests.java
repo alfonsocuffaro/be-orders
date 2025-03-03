@@ -123,15 +123,15 @@ class BeordersApplicationAdminTests {
 	@Test
 	@DirtiesContext
 	void shouldCreateANewOrderOnBehalfOthersUsingReservedUri() {
-		// admin creates an order on behalf of Alice
+		// Admin creates an order on behalf of Alice
 		Order newOrd = new Order(null, 250.00, "Alice", "Bicicletta", 10);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.postForEntity("/v1/admin/orders", newOrd, Void.class);
 		assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		
-		// check that update has really changed the data store
-		// verification 1: admin should see the new order
+		// Verify that the update has really changed the order in the data store.
+		// Verification 1: Admin should see the new order.
 		URI locationOfNewOrder = createResponse.getHeaders().getLocation();
 		ResponseEntity<String> getResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
@@ -151,10 +151,14 @@ class BeordersApplicationAdminTests {
 		assertThat(product).isEqualTo("Bicicletta");
 		assertThat(quantity).isEqualTo(10);
 		
-		// verification 2: but also Alice (the owner) should see it under the URI "/orders/{id}"
+		// Verification 2: also Alice (the order's owner) should see it under the URI "/v1/orders/{id}".
+		// The order has been created by the Admin so the system places in the location
+		// header the following URL 'http://localhost:50449/v1/admin/orders/1'.
+		// This URL is not directly accessible to Alice (it's under /v1/admin/*), so the location header
+		// must be reworked to eliminate the '/admin/' part.
 		// example:
-		// - URI from location header: http://localhost:50449/admin/orders/1
-		// - URI for Alice: http://localhost:50449/orders/1
+		// - URI from location header: http://localhost:50449/v1/admin/orders/1
+		// - URI for Alice: http://localhost:50449/v1/orders/1
 		String uriFromLocationHeader = createResponse.getHeaders().getLocation().toASCIIString();
 		String newUrlForOwner = uriFromLocationHeader.replaceAll("/admin/", "/");
 		
@@ -181,15 +185,15 @@ class BeordersApplicationAdminTests {
 	@Test
 	@DirtiesContext
 	void shouldCreateANewOrderOnBehalfOthersUsingPublicUri() {
-		// admin creates an order on behalf of Alice
+		// Admin creates an order on behalf of Alice
 		Order newOrd = new Order(null, 250.00, "Alice", "Bicicletta", 10);
 		ResponseEntity<Void> createResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.postForEntity("/v1/orders", newOrd, Void.class);
 		assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		
-		// check that update has really changed the data store
-		// verification 1: admin should see the new order
+		// Verify that the update has really changed the order in the data store.
+		// Verification 1: Admin should see the new order.
 		URI locationOfNewOrder = createResponse.getHeaders().getLocation();
 		ResponseEntity<String> getResponse = restTemplate
 				.withBasicAuth("Admin", "admin")
@@ -209,10 +213,14 @@ class BeordersApplicationAdminTests {
 		assertThat(product).isEqualTo("Bicicletta");
 		assertThat(quantity).isEqualTo(10);
 		
-		// verification 2: but also Alice (the owner) should see it under the URI "/orders/{id}"
+		// Verification 2: also Alice (the order's owner) should see it under the URI "/v1/orders/{id}".
+		// The order has been created by the Admin so the system places in the location
+		// header the following URL 'http://localhost:50449/v1/admin/orders/1'.
+		// This URL is not directly accessible to Alice (it's under /v1/admin/*), so the location header
+		// must be reworked to eliminate the '/admin/' part.
 		// example:
-		// - URI from location header: http://localhost:50449/admin/orders/1
-		// - URI for Alice: http://localhost:50449/orders/1
+		// - URI from location header: http://localhost:50449/v1/admin/orders/1
+		// - URI for Alice: http://localhost:50449/v1/orders/1
 		String uriFromLocationHeader = createResponse.getHeaders().getLocation().toASCIIString();
 		String newUrlForOwner = uriFromLocationHeader.replaceAll("/admin/", "/");
 		
@@ -286,11 +294,6 @@ class BeordersApplicationAdminTests {
 	}
 	
 	
-	
-	
-
-
-	
 	@Test
 	void shouldReturnAllOrdersOfEveryoneHavingASpecificProductTypeWhenListIsRequestedUsingReservedUri() {
 		ResponseEntity<String> response = restTemplate
@@ -328,8 +331,6 @@ class BeordersApplicationAdminTests {
 	}
 	
 	
-	
-	
 	@Test
 	@DirtiesContext
 	void shouldUpdateAnExistingOrderOfAdminUsingReservedUri() {
@@ -340,7 +341,7 @@ class BeordersApplicationAdminTests {
 				.exchange("/v1/admin/orders/1000", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
-		// check that update has really changed the data store
+		// check that the 'update' operation has really changed the order in the data store.
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.getForEntity("/v1/admin/orders/1000", String.class);
@@ -369,8 +370,8 @@ class BeordersApplicationAdminTests {
 				.withBasicAuth("Admin", "admin")
 				.exchange("/v1/orders/1000", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-		
-		// check that update has really changed the data store
+
+		// check that the 'update' operation has really changed the order in the data store.
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.getForEntity("/v1/orders/1000", String.class);
@@ -399,9 +400,9 @@ class BeordersApplicationAdminTests {
 				.withBasicAuth("Admin", "admin")
 				.exchange("/v1/admin/orders/100", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-		
-		// check that update has really changed the data store
-		// verification 1: admin should see the new order
+
+		// check that the 'update' operation has really changed the order in the data store.
+		// Verification 1: Admin should see the new order.
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.getForEntity("/v1/admin/orders/100", String.class);
@@ -432,8 +433,8 @@ class BeordersApplicationAdminTests {
 				.exchange("/v1/orders/100", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
-		// check that update has really changed the data store
-		// verification 1: admin should see the new order
+		// Verify that the update has really changed the order in the data store.
+		// Verification 1: Admin should see the new order.
 		ResponseEntity<String> responseToGet = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.getForEntity("/v1/orders/100", String.class);
@@ -465,6 +466,7 @@ class BeordersApplicationAdminTests {
 		JSONArray page = documentContext.read("$[*]");
 		assertThat(page).hasSize(1);
 	}
+	
 	
 	@Test
 	void shouldReturnAPageOfOrdersUsingPublicUri() {
@@ -634,14 +636,14 @@ class BeordersApplicationAdminTests {
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
-		// now test that the order is actually deleted
-		// STEP 1: the admin doesn't see it anymore using the reserved URI
+		// Now verify that the order is actually deleted.
+		// STEP 1: the Admin doesn't see it anymore using the reserved URI.
 		ResponseEntity<String> getResponseStep1 = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.getForEntity("/v1/admin/orders/100", String.class);
 			assertThat(getResponseStep1.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
-		// STEP 2: the admin doesn't see it anymore using the public URI
+		// STEP 2: the Admin doesn't see it anymore using the public URI
 		ResponseEntity<String> getResponseStep2 = restTemplate
 				.withBasicAuth("Admin", "admin")
 				.getForEntity("/v1/orders/100", String.class);
@@ -664,20 +666,20 @@ class BeordersApplicationAdminTests {
 
 			assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 			
-			// now test that the order is actually deleted
-			// STEP 1: the admin doesn't see it anymore using the reserved URI
+			// Now verify that the order is actually deleted.
+			// STEP 1: the Admin doesn't see it anymore using the reserved URI.
 			ResponseEntity<String> getResponseStep1 = restTemplate
 					.withBasicAuth("Admin", "admin")
 					.getForEntity("/v1/admin/orders/300", String.class);
 				assertThat(getResponseStep1.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
-			// STEP 2: the admin doesn't see it anymore using the public URI
+				// STEP 2: the Admin doesn't see it anymore using the public URI
 			ResponseEntity<String> getResponseStep2 = restTemplate
 					.withBasicAuth("Admin", "admin")
 					.getForEntity("/v1/orders/300", String.class);
 				assertThat(getResponseStep2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				
-			// STEP 3: the owner doesn't see it anymore using the public URI
+				// STEP 3: the owner doesn't see it anymore using the public URI
 			ResponseEntity<String> getResponseStep3 = restTemplate
 					.withBasicAuth("Alice", "alice")
 					.getForEntity("/v1/orders/300", String.class);

@@ -27,6 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class OrderController {
 	private final OrderRepository orderRepository;
 	
+	
 	private OrderController(OrderRepository anOrderRepository) {
 		this.orderRepository = anOrderRepository;
 	}
@@ -49,7 +50,6 @@ public class OrderController {
 			
 			Page<Order> adminPage = Strings.isBlank(productType) ?
 					orderRepository.findAll(pageRequest)
-					// TODO make searches case insensitive
 					: orderRepository.findByProduct(productType, pageRequest);
 
 			return ResponseEntity.ok(adminPage.getContent());
@@ -58,21 +58,15 @@ public class OrderController {
 		String productOwner = principal.getName();
 		Page<Order> page = Strings.isBlank(productType) ?
 				orderRepository.findByOwner(productOwner, pageRequest)
-				// TODO make searches case insensitive
 				: orderRepository.findByOwnerAndProduct(productOwner, productType, pageRequest);
 		
 		return ResponseEntity.ok(page.getContent());
 	}
 	
 	
-	
-	
-	
-	
 	@GetMapping("/{requestedId}")
 	private ResponseEntity<Order> findById(@PathVariable Long requestedId, Principal principal) {
 		
-		// TODO implement a better solution instead of such a naive one
 		Order order = findOrder(requestedId, principal);
 		
 		return order == null ?
@@ -112,15 +106,6 @@ public class OrderController {
 	}
 	
 	
-//	@DeleteMapping("/{id}")
-//	private ResponseEntity<Void> deleteOrder(@PathVariable Long id, Principal principal) {
-//		// check if the order exists in the database AND the principal own the record
-//		if (!orderRepository.existsByIdAndOwner(id, principal.getName())) {
-//			return ResponseEntity.notFound().build();
-//		}
-//		orderRepository.deleteById(id);
-//		return ResponseEntity.noContent().build();
-//	}	
 	@DeleteMapping("/{id}")
 	private ResponseEntity<Void> deleteOrder(@PathVariable Long id, Principal principal) {
 		
@@ -134,7 +119,7 @@ public class OrderController {
 			return ResponseEntity.noContent().build();
 		}
 		
-		// check if the order exists in the database AND the principal own the record
+		// check if the order exists in the database AND the principal owns the record
 		if (!orderRepository.existsByIdAndOwner(id, principal.getName())) {
 			return ResponseEntity.notFound().build();
 		}
@@ -142,9 +127,6 @@ public class OrderController {
 		return ResponseEntity.noContent().build();
 	}
 	
-//	private Order findOrder(Long requestedId) {
-//		return orderRepository.findById(requestedId);
-//	}
 	
 	private Order findOrder(Long requestedId, Principal principal) {
 		if (principal.getName().equals("Admin")) {

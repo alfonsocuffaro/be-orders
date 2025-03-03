@@ -126,7 +126,6 @@ class BeordersApplicationTests {
 	void shouldReturnAllOrdersHavingASpecificProductTypeWhenListIsRequested() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				// TODO make searches case insensitive
 				.getForEntity("/v1/orders?productType=Dogfood", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
@@ -152,7 +151,6 @@ class BeordersApplicationTests {
 	void shouldReturnNoOrdersHavingASpecifiedAFakeProductTypeWhenListIsRequested() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				// TODO make searches case insensitive
 				.getForEntity("/v1/orders?productType=FakeProductType", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
@@ -163,14 +161,13 @@ class BeordersApplicationTests {
 	
 	
 	@Test
-	// Alice searches its own orders for an order having a product of type Computer.
+	// Alice searches her own orders for an order having a product of type Computer.
 	// Computer is a valid product type (it used in order 1000 placed by user Admin) but
 	// no orders in Alice's orders have that product type.
 	// In this case an empty list should be returned.
 	void shouldReturnNoOrdersHavingASpecifiedAProductTypeNotUsedInMyOrdersWhenListIsRequested() {
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				// TODO make searches case insensitive
 				.getForEntity("/v1/orders?productType=Computer", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
@@ -345,8 +342,7 @@ class BeordersApplicationTests {
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		
-		
-		// now test that the order is actually deleted
+		// now test that the order has actually been deleted
 		ResponseEntity<String> getResponse = restTemplate
 				.withBasicAuth("Alice", "alice")
 				.getForEntity("/v1/orders/200", String.class);
@@ -373,36 +369,14 @@ class BeordersApplicationTests {
 		
 		assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		
-		// verify that the record we tried unsuccessfully to delete is still there
-		// order with id 600 is owned by Cathy, so we must use Cathy to try access it
+		// Verify that the record we tried to unsuccessfully delete is still there.
+		// Order with id 600 is owned by Cathy, so we must use Cathy to try access it.
 		ResponseEntity<String> getResponse = restTemplate
 				.withBasicAuth("Cathy", "cathy")
 				.getForEntity("/v1/orders/600", String.class);
 		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 		
 	}
-	
-//	
-//	@Test
-//	void shouldReturnToAdminAllOrdersWhenListIsRequested() {
-//		ResponseEntity<String> response = restTemplate
-//				.withBasicAuth("Admin", "admin")
-//				.getForEntity("/orders", String.class);
-//		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-//		
-//		DocumentContext documentContext = JsonPath.parse(response.getBody());
-//		int ordersCount = documentContext.read("$.length()");
-//		assertThat(ordersCount).isEqualTo(6);
-//		
-//		JSONArray ids = documentContext.read("$..id");
-//		assertThat(ids).containsExactlyInAnyOrder(99, 100, 200, 300, 400, 600);
-//		
-//		JSONArray amounts = documentContext.read("$..amount");
-//		assertThat(amounts).containsExactlyInAnyOrder(123.99, 1100.99, 1200.99, 1300.99, 1400.99, 1600.99);
-//	}
-
-	
-
 	
 	
 	@Test
@@ -428,7 +402,7 @@ class BeordersApplicationTests {
 		Order newOrder = new Order(null, 250.00, "Alice", "Computer laptop", 2);
 		ResponseEntity<String> response = restTemplate
 				.withBasicAuth("Alice", "alice")
-				.postForEntity("/v1/admin/orders?productType=Computer", newOrder, String.class);
+				.postForEntity("/v1/admin/orders", newOrder, String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
@@ -442,7 +416,6 @@ class BeordersApplicationTests {
 				.exchange("/v1/admin/orders/100", HttpMethod.PUT, request, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
-
 
 
 	@Test

@@ -15,6 +15,7 @@ import org.springframework.boot.test.json.JsonContent;
 
 import com.example.beorders.orders.Order;
 
+
 @JsonTest
 public class OrderJsonTest {
 	@Autowired
@@ -43,7 +44,7 @@ public class OrderJsonTest {
 		Order anOrder = new Order(100L, 123.00, "Alice", "Food", 1);
 		JsonContent<Order> jsonOrder = json.write(anOrder);
 		
-		// test write is correct
+		// test that 'write' operation is correct
 		assertThat(jsonOrder).isStrictlyEqualToJson("orders/order_expected_single.json");
 
 		assertThat(jsonOrder).hasJsonPathNumberValue("@.id");
@@ -75,7 +76,7 @@ public class OrderJsonTest {
 			}
 		""";
 		
-		// test that parsing is correct
+		// test that 'parse' operation is correct
 		assertThat(json.parse(expected)).isEqualTo(new Order(100L, 123.00, "Alice", "Food", 1));
 
 		// test that 'Order' attributes are read correctly

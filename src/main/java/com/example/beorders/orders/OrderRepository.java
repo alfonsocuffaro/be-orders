@@ -18,10 +18,4 @@ interface OrderRepository extends CrudRepository<Order, Long>, PagingAndSortingR
 	Page<Order>     findByProduct(String productType, Pageable pageRequest);
 	Page<Order>     findByOwnerAndProduct(String owner, String productType, Pageable pageRequest);
 	Page<Order>     findAll(Pageable pageRequest);
-	
-	
-	
-	
-//	@Query("SELECT p FROM Publishers p WHERE p.journals > :minJournals AND p.location = :location")
-//	List<Order> findOrdersWithMinJournalsInLocation(Integer minJournals,String owner);
 }
