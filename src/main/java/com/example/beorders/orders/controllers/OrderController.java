@@ -1,4 +1,4 @@
-package com.example.beorders.orders;
+package com.example.beorders.orders.controllers;
 
 import java.net.URI;
 import java.security.Principal;
@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.example.beorders.orders.Order;
+import com.example.beorders.orders.OrderRepository;
 
 
 @RestController
