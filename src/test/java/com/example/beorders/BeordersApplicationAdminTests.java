@@ -318,6 +318,30 @@ class BeordersApplicationAdminTests {
 	}
 
 	
+	
+	@Test
+	void shouldReturnAllOrdersOfEveryoneHavingASpecificProductTypeIgnoringCaseWhenListIsRequestedUsingReservedUri() {
+		ResponseEntity<String> response = restTemplate
+				.withBasicAuth("Admin", "admin")
+				.getForEntity("/v1/admin/orders?productType=dogfood", String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		int ordersCount = documentContext.read("$.length()");
+		JSONArray ids = documentContext.read("$..id");
+		JSONArray amounts = documentContext.read("$..amount");
+		JSONArray owners = documentContext.read("$..owner");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
+		
+		assertThat(ordersCount).isEqualTo(2);
+		assertThat(ids).containsExactlyInAnyOrder(300, 600);
+		assertThat(amounts).containsExactlyInAnyOrder(1300.99, 1600.99);
+		assertThat(owners).containsExactlyInAnyOrder("Alice", "Cathy");
+		assertThat(products).containsExactlyInAnyOrder("Dogfood", "Dogfood");
+		assertThat(quantities).containsExactlyInAnyOrder(1, 1);
+	}
+	
 	@Test
 	void shouldReturnNoOrdersHavingANotExisistingProductTypeWhenListIsRequestedUsingPublicUri() {
 		ResponseEntity<String> response = restTemplate

@@ -52,7 +52,7 @@ public class AdminOrderController {
 		
 		Page<Order> adminPage = Strings.isBlank(productType) ?
 				orderRepository.findAll(pageRequest)
-				: orderRepository.findByProduct(productType, pageRequest);
+				: orderRepository.findByProductIgnoreCase(productType, pageRequest);
 
 		return ResponseEntity.ok(adminPage.getContent());
 	}

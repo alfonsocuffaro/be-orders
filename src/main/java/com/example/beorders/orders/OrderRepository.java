@@ -15,7 +15,7 @@ public interface OrderRepository extends CrudRepository<Order, Long>, PagingAndS
 	boolean         existsByIdAndOwner(Long id, String owner);
 
 	Page<Order>     findByOwner(String owner, PageRequest pageRequest);
-	Page<Order>     findByProduct(String productType, Pageable pageRequest);
-	Page<Order>     findByOwnerAndProduct(String owner, String productType, Pageable pageRequest);
+	Page<Order>     findByProductIgnoreCase(String productType, Pageable pageRequest);
+	Page<Order>     findByOwnerAndProductIgnoreCase(String owner, String productType, Pageable pageRequest);
 	Page<Order>     findAll(Pageable pageRequest);
 }

@@ -53,7 +53,7 @@ public class OrderController {
 			
 			Page<Order> adminPage = Strings.isBlank(productType) ?
 					orderRepository.findAll(pageRequest)
-					: orderRepository.findByProduct(productType, pageRequest);
+					: orderRepository.findByProductIgnoreCase(productType, pageRequest);
 
 			return ResponseEntity.ok(adminPage.getContent());
 		}
@@ -61,7 +61,7 @@ public class OrderController {
 		String productOwner = principal.getName();
 		Page<Order> page = Strings.isBlank(productType) ?
 				orderRepository.findByOwner(productOwner, pageRequest)
-				: orderRepository.findByOwnerAndProduct(productOwner, productType, pageRequest);
+				: orderRepository.findByOwnerAndProductIgnoreCase(productOwner, productType, pageRequest);
 		
 		return ResponseEntity.ok(page.getContent());
 	}

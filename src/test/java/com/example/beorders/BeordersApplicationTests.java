@@ -145,6 +145,31 @@ class BeordersApplicationTests {
 		assertThat(products).containsExactlyInAnyOrder("Dogfood");
 		assertThat(quantities).containsExactlyInAnyOrder(1);
 	}
+
+	
+	@Test
+	void shouldReturnAllOrdersHavingASpecificProductTypeIgnoringCaseWhenListIsRequested() {
+		ResponseEntity<String> response = restTemplate
+				.withBasicAuth("Alice", "alice")
+				.getForEntity("/v1/orders?productType=dogfood", String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		int ordersCount = documentContext.read("$.length()");
+		
+		JSONArray ids = documentContext.read("$..id");
+		JSONArray amounts = documentContext.read("$..amount");
+		JSONArray owners = documentContext.read("$..owner");
+		JSONArray products = documentContext.read("$..product");
+		JSONArray quantities = documentContext.read("$..quantity");
+
+		assertThat(ordersCount).isEqualTo(1);
+		assertThat(ids).containsExactlyInAnyOrder(300);
+		assertThat(amounts).containsExactlyInAnyOrder(1300.99);
+		assertThat(owners).containsExactlyInAnyOrder("Alice");
+		assertThat(products).containsExactlyInAnyOrder("Dogfood");
+		assertThat(quantities).containsExactlyInAnyOrder(1);
+	}
 	
 	
 	@Test
