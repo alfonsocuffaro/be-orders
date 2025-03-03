@@ -272,13 +272,13 @@ The uri to call to create an order.
 
 ### Examples of URIs
 
-```json
+```
 POST /v1/orders/12
 ```
 
 
 ### Examples of Request Body
-```json
+```
 {
 	"amount": 1200.00,
 	"product": "bracelet",
@@ -318,33 +318,33 @@ The uri to call to modify an order.
 
 ### Examples of URIs
 
-```json
+```
 PUT /v1/orders/28
 ```
 
 ### Examples of Request Body
-```json
+```
 {
 	"amount": 1200.00,
 	"quantity": 2
 }
 ```
 
-```json
+```
 {
 	"product": "diamond ring",
 	"quantity": 5
 }
 ```
 
-```json
+```
 {
 	"amount": 1200.00,
 	"product": "bracelet"
 }
 ```
 
-```json
+```
 {
 	"amount": 1200.00,
 	"product": "bracelet",
@@ -376,7 +376,7 @@ The uri to call to delete an order.
 
 ### Examples of URIs
 
-```json
+```
 DELETE /v1/orders/28
 ```
 
