@@ -152,26 +152,26 @@ The uri to call to retrieve a list of orders.
 
 ### Examples of URIs
 
-```json
+```
 GET /v1/orders
 ```
 
-```json
+```
 GET /v1/orders?productType=libro
 ```
 
-```json
+```
 GET /v1/orders?page=0&size=50
 ```
 
-```json
+```
 GET /v1/orders?productType=libro&page=0&size=5&sort=amount,desc
 ```
 
 ### Response
 
-|  HTTP                | Status |
-|----------------------|--------|
+|  HTTP                | Status                                                                     |
+|----------------------|----------------------------------------------------------------------------|
 | **200 OK**           | the user is authorized and the order was successfully retrieved            |
 | **401 UNAUTHORIZED** | the user is unauthenticated or unauthorized                                |
 | **404 NOT FOUND**    | the user is authenticated and authorized but the order cannot be found     |
@@ -186,7 +186,7 @@ application/json
 	"id": 2,
 	"amount": 5200.0,
 	"owner": "Alice",
-	"product": "anello di diamanti",
+	"product": "diamond ring",
 	"quantity": 2
 }
 ~~~
@@ -197,14 +197,14 @@ application/json
 		"id": 2,
 		"amount": 300.0,
 		"owner": "Alice",
-		"product": "libro",
+		"product": "book",
 		"quantity": 10
 	},
 	{
 		"id": 3,
 		"amount": 5200.0,
 		"owner": "Alice",
-		"product": "anello di diamanti",
+		"product": "diamond ring",
 		"quantity": 2
 	}
 ]
@@ -226,7 +226,7 @@ The uri to call to retrieve a specific order.
 
 ### Examples of URIs
 
-```json
+```
 GET /v1/orders/12
 ```
 
@@ -250,7 +250,7 @@ application/json
 	"id": 2,
 	"amount": 5200.0,
 	"owner": "Alice",
-	"product": "anello di diamanti",
+	"product": "diamond ring",
 	"quantity": 2
 }
 ~~~
@@ -281,7 +281,7 @@ POST /v1/orders/12
 ```json
 {
 	"amount": 1200.00,
-	"product": "Braccialetto",
+	"product": "bracelet",
 	"quantity": 2
 }
 ```
@@ -332,7 +332,7 @@ PUT /v1/orders/28
 
 ```json
 {
-	"product": "Braccialetto",
+	"product": "diamond ring",
 	"quantity": 5
 }
 ```
@@ -340,14 +340,14 @@ PUT /v1/orders/28
 ```json
 {
 	"amount": 1200.00,
-	"product": "Braccialetto",
+	"product": "bracelet"
 }
 ```
 
 ```json
 {
 	"amount": 1200.00,
-	"product": "Braccialetto",
+	"product": "bracelet",
 	"quantity": 5
 }
 ```
